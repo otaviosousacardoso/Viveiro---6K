@@ -17,7 +17,7 @@
 **Tempo gasto por história:**
 
 | ID | Quem trabalhou | Tempo (min) |
-|---|Regis|---|
+|---|Regis|10 min|
 
 **Impedimentos encontrados:** *Até então, fizemos o repositório, enviamos o convite para todos do grupo entrarem e começamos a olhar o html.*
 
