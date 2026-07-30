@@ -19,7 +19,7 @@
 | ID | Quem trabalhou | Tempo (min) |
 |---|Regis|10 min|
 
-**Impedimentos encontrados:** *Até então, fizemos o repositório, enviamos o convite para todos do grupo entrarem e começamos a olhar o html.*
+**Impedimentos encontrados:** *Até então, fizemos o repositório, enviamos o convite para todos do grupo entrarem, começamos a olhar o html, mudamos o html de acordo com as normas e trocamos a história 1, pois infrigia as normas .*
 
 **Decisões tomadas:** *Decidimos o papel de cada pessoa do grupo por hoje, de forma que todos ficaram satisfeitos, decidimos o nome do grupo(com a justificativa de cada uma)*
 
