@@ -17,11 +17,11 @@
 **Tempo gasto por história:**
 
 | ID | Quem trabalhou | Tempo (min) |
-|---|---|---|
+|---|Regis|---|
 
-**Impedimentos encontrados:** *(o que travou o trabalho, e o que foi feito a respeito)*
+**Impedimentos encontrados:** *Até então, fizemos o repositório, enviamos o convite para todos do grupo entrarem e começamos a olhar o html.*
 
-**Decisões tomadas:** *(com a justificativa de cada uma)*
+**Decisões tomadas:** *Decidimos o papel de cada pessoa do grupo por hoje, de forma que todos ficaram satisfeitos, decidimos o nome do grupo(com a justificativa de cada uma)*
 
 ---
 
