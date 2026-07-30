@@ -17,8 +17,8 @@
 **para** saber se temos interesses em comum antes de procurá-la.
 
 Pronto quando:
-- clicar no nome do autor, em qualquer cartão, abre a página dessa pessoa;
-- a página mostra nome, tipo (aluno ou professor), curso e interesses;
+- clicar no pseudônimo do autor, em qualquer cartão, abre a página dessa pessoa;
+- a página mostra pseudônimo, seus interesses e suas mudanças e oque é (professor ou aluno) e caso entre em uma conversa mostra seu nome 
 - a página lista as ideias publicadas por essa pessoa, com o título clicável;
 - se a pessoa não publicou nenhuma ideia, aparece a frase "ainda não publicou ideias" no lugar da lista vazia;
 - existe um caminho de volta ao mural sem usar o botão do navegador.
