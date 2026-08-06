@@ -143,7 +143,6 @@ pronto quando:
 
 Anotações de conversa. Ninguém escreveu direito ainda.
 
- **V-10** — ideias paradas
 - **V-11** — relatório por curso
 - **V-12** — exportar / importar o estado
 
