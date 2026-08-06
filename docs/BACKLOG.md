@@ -128,7 +128,7 @@ Pronto quando:
 - tocar na notificação abre a ideia correspondente.
 
 ---
-##V-10** — ideias paradas
+### V-10 — ideias paradas
 **como** aluno não quer efetuar sua ideia agora
 **quero** arquivar a ideia em uma pasta
 **para** não perder a ideia
