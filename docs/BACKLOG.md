@@ -128,12 +128,22 @@ Pronto quando:
 - tocar na notificação abre a ideia correspondente.
 
 ---
+##V-10** — ideias paradas
+**como** aluno não quer efetuar sua ideia agora
+**quero** arquivar a ideia em uma pasta
+**para** não perder a ideia
+
+pronto quando:
+-ao efetuar o arquivamento for pra uma pasta ficar salvo sem alterar em nada
+-ficar de fácil acesso para o dono
+-e não estar público para ningúem
+
 
 ## Caixa de entrada
 
 Anotações de conversa. Ninguém escreveu direito ainda.
 
-- **V-10** — ideias paradas
+ **V-10** — ideias paradas
 - **V-11** — relatório por curso
 - **V-12** — exportar / importar o estado
 
