@@ -134,9 +134,9 @@ Pronto quando:
 **para** não perder a ideia
 
 pronto quando:
--ao efetuar o arquivamento for pra uma pasta ficar salvo sem alterar em nada;
--ficar de fácil acesso para o dono;
--e não estar público para ningúem;
+- ao efetuar o arquivamento for pra uma pasta ficar salvo sem alterar em nada;
+- ficar de fácil acesso para o dono;
+- e não estar público para ningúem.
 
 
 ## Caixa de entrada
