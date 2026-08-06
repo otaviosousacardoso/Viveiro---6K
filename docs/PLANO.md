@@ -1,4 +1,4 @@
-# Plano da sprint — [nome da equipe] · base [V-?]
+# Plano da sprint — [6k] · base [V-?]
 
 > Preenchido na reunião de planejamento (30/07) e atualizado a cada encontro
 > pelo escriba. As seções seguem a ordem em que serão usadas.
