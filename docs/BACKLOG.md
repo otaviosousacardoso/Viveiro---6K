@@ -129,9 +129,9 @@ Pronto quando:
 
 ---
 ### V-10 — ideias paradas
-**como** aluno não quero efetuar minha ideia agora
-**quero** arquivar a ideia em uma pasta
-**para** não perder a ideia
+**como** aluno não quero efetuar a minha ideia agora
+**quero** arquivar as ideias em uma pasta
+**para** não perder elas
 
 pronto quando:
 - ao efetuar o arquivamento for pra uma pasta ficar salvo sem alterar em nada;
