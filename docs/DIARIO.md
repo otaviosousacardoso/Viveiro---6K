@@ -1,4 +1,4 @@
-# Diário da sprint — [nome da equipe] · base [V-?]
+# Diário da sprint — [6K] · base [V-?]
 
 > Um bloco por encontro e por sessão extra, sempre no mesmo formato.
 > O diário registra o que aconteceu, não o que deveria ter acontecido.
