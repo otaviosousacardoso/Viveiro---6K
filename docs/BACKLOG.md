@@ -83,16 +83,17 @@ Pronto quando:
 
 ---
 
-### V-06 — Estados da ideia
-
-**Como** usuário,
-**quero** que as ideias tenham estados,
-**para** que os estados das ideias fiquem registrados.
-
-Pronto quando:
-- os estados estiverem implementados.
-
-Obs.: falamos em três estados — semente, germinando, proposta.
+### V-06A — Estados da ideia
+**Como:** Usuário
+**Quero:** Associar um estado a cada ideia
+**Para:** Registrar em que estágio cada ideia está
+**Pronto quando:**
+cada ideia possuir exatamente um estado;
+os estados disponíveis forem semente, germinando e proposta;
+for possível visualizar o estado atual de uma ideia;
+for possível alterar o estado de uma ideia;
+após a alteração, o novo estado permanecer associado à ideia;
+a interface não permitir atribuir à ideia um estado diferente dos três estados definidos.
 
 ---
 
