@@ -129,7 +129,7 @@ Pronto quando:
 
 ---
 ### V-10 — ideias paradas
-**como** aluno não quero efetuar a minha ideia agora
+**como**  aluno quando não quero efetuar a minha ideia agora
 **quero** arquivar as ideias em uma pasta
 **para** não perder elas
 
