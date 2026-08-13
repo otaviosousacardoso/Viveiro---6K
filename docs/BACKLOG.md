@@ -25,12 +25,18 @@ Pronto quando:
 
 ---
 
-### V-02 — Filtro por curso
-
-Implementar filtro por curso na barra lateral do mural.
-
+### V-02A — Filtrar por curso
+Como: Aluno
+Quero: Filtrar o mural por curso
+Para: Encontrar pessoas do mesmo curso com mais facilidade
 Pronto quando:
-- o filtro estiver funcionando.
+existir um filtro de curso na barra lateral do mural;
+o filtro apresentar os cursos disponíveis;
+selecionar um curso mostrar somente as pessoas e ideias associadas ao curso selecionado;
+alterar o curso atualizar os resultados exibidos no mural;
+existir uma opção para remover o filtro e voltar a visualizar todos os cursos;
+o filtro funcionar sem recarregar a página.
+
 
 ---
 
