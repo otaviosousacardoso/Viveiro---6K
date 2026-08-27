@@ -1,52 +1,411 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Viveiro — berçário de ideias</title>
-<link rel="stylesheet" href="src/estilo.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Viveiro — berçário de ideias</title>
+
+  <link rel="stylesheet" href="src/estilo.css">
 </head>
+
 <body>
 
 <header>
+
   <div class="marca">
     <h1>Viveiro</h1>
-    <span class="lema">onde as ideias crescem antes de virar projeto</span>
+
+    <span class="lema">
+      onde as ideias crescem antes de virar projeto
+    </span>
   </div>
+
   <div class="sessao">
-    <label for="quem">navegando como</label>
+
+    <label for="quem">
+      navegando como
+    </label>
+
     <select id="quem"></select>
+
   </div>
+
 </header>
 
+
+<!-- =====================================================
+     ABAS
+===================================================== -->
+
 <nav class="abas">
-  <button id="aba-mural" class="aba ativa">Mural</button>
-  <button id="aba-grupos" class="aba">Grupos</button>
+
+  <button
+    id="aba-mural"
+    class="aba ativa"
+    type="button">
+    Mural
+  </button>
+
+  <button
+    id="aba-grupos"
+    class="aba"
+    type="button">
+    Grupos
+  </button>
+
+  <button
+    id="aba-arquivo"
+    class="aba"
+    type="button">
+    Arquivo
+  </button>
+
+  <button
+    id="aba-notificacoes"
+    class="aba"
+    type="button">
+
+    Notificações
+
+    <span
+      id="contador-notificacoes"
+      class="contador-notificacoes">
+      0
+    </span>
+
+  </button>
+
 </nav>
 
-<main>
-  <!-- ------------------------------ MURAL ------------------------------ -->
-  <section id="mural">
-    <div class="barra">
-      <input id="busca" type="search" placeholder="buscar por título ou resumo...">
-      <span id="contagem" class="contagem"></span>
-    </div>
-    <p id="filtro-ativo" class="filtro-ativo"></p>
-    <div id="cartoes" class="cartoes"></div>
-  </section>
 
-  <!-- ------------------------------ GRUPOS ----------------------------- -->
-  <section id="grupos" class="escondido">
-    <ul id="lista-grupos" class="lista-grupos"></ul>
-  </section>
+<main>
+
+
+<!-- =====================================================
+     MURAL
+===================================================== -->
+
+<section id="mural">
+
+  <div class="barra">
+
+    <input
+      id="busca"
+      type="search"
+      placeholder="buscar por título ou resumo..."
+      autocomplete="off">
+
+    <span
+      id="contagem"
+      class="contagem">
+    </span>
+
+    <button
+      id="botao-publicar"
+      class="botao-principal"
+      type="button">
+
+      + Publicar ideia
+
+    </button>
+
+  </div>
+
+
+  <p
+    id="filtro-ativo"
+    class="filtro-ativo">
+  </p>
+
+
+  <div
+    id="cartoes"
+    class="cartoes">
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     GRUPOS
+===================================================== -->
+
+<section
+  id="grupos"
+  class="escondido">
+
+  <div class="pagina-cabecalho">
+
+    <div>
+      <h2>Grupos</h2>
+
+      <p>
+        Grupos disponíveis no Viveiro.
+      </p>
+    </div>
+
+  </div>
+
+
+  <ul
+    id="lista-grupos"
+    class="lista-grupos">
+  </ul>
+
+</section>
+
+
+<!-- =====================================================
+     ARQUIVO — V-10
+===================================================== -->
+
+<section
+  id="arquivo"
+  class="escondido">
+
+  <div class="pagina-cabecalho">
+
+    <div>
+      <h2>Minhas ideias arquivadas</h2>
+
+      <p>
+        Somente você pode ver as ideias que arquivou.
+      </p>
+    </div>
+
+  </div>
+
+
+  <div
+    id="lista-arquivo"
+    class="cartoes">
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     NOTIFICAÇÕES — V-09
+===================================================== -->
+
+<section
+  id="notificacoes"
+  class="escondido">
+
+  <div class="pagina-cabecalho">
+
+    <div>
+      <h2>Notificações</h2>
+
+      <p>
+        Pessoas que demonstraram interesse nas suas ideias.
+      </p>
+    </div>
+
+    <button
+      id="marcar-notificacoes"
+      class="botao-secundario"
+      type="button">
+
+      Marcar todas como lidas
+
+    </button>
+
+  </div>
+
+
+  <div
+    id="lista-notificacoes"
+    class="lista-notificacoes">
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     PÁGINA DA PESSOA — V-01
+===================================================== -->
+
+<section
+  id="pagina-pessoa"
+  class="escondido">
+
+  <button
+    id="voltar-pessoa"
+    class="botao-voltar"
+    type="button">
+
+    ← Voltar ao mural
+
+  </button>
+
+
+  <div
+    id="conteudo-pessoa"
+    class="perfil">
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     PÁGINA DA IDEIA
+===================================================== -->
+
+<section
+  id="pagina-ideia"
+  class="escondido">
+
+  <button
+    id="voltar-ideia"
+    class="botao-voltar"
+    type="button">
+
+    ← Voltar ao mural
+
+  </button>
+
+
+  <div
+    id="conteudo-ideia"
+    class="ideia-detalhe">
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     PUBLICAR IDEIA — V-03
+===================================================== -->
+
+<section
+  id="pagina-publicar"
+  class="escondido">
+
+  <button
+    id="voltar-publicar"
+    class="botao-voltar"
+    type="button">
+
+    ← Voltar ao mural
+
+  </button>
+
+
+  <div class="formulario-container">
+
+    <h2>Publicar uma ideia</h2>
+
+    <p class="texto-ajuda">
+      Compartilhe uma ideia com o Viveiro.
+    </p>
+
+
+    <form id="form-publicar">
+
+
+      <div class="campo">
+
+        <label for="novo-titulo">
+          Título *
+        </label>
+
+        <input
+          id="novo-titulo"
+          type="text"
+          maxlength="120"
+          placeholder="Digite o título da ideia">
+
+      </div>
+
+
+      <div class="campo">
+
+        <label for="novo-resumo">
+          Resumo
+        </label>
+
+        <textarea
+          id="novo-resumo"
+          rows="5"
+          maxlength="500"
+          placeholder="Explique rapidamente sua ideia"></textarea>
+
+      </div>
+
+
+      <div class="campo">
+
+        <label for="novas-tags">
+          Tags
+        </label>
+
+        <input
+          id="novas-tags"
+          type="text"
+          placeholder="tecnologia, escola, sustentabilidade">
+
+        <small>
+          Separe as tags por vírgula.
+        </small>
+
+      </div>
+
+
+      <p
+        id="erro-publicacao"
+        class="erro">
+      </p>
+
+
+      <button
+        type="submit"
+        class="botao-principal">
+
+        Publicar ideia
+
+      </button>
+
+    </form>
+
+  </div>
+
+</section>
+
+
 </main>
 
+
+<!-- =====================================================
+     RODAPÉ
+===================================================== -->
+
 <footer>
-  <span>Viveiro — versão 0.1 (MVP)</span>
-  <span id="base" class="base"></span>
+
+  <span>
+    Viveiro — versão 0.1 (MVP)
+  </span>
+
+  <span
+    id="base"
+    class="base">
+  </span>
+
 </footer>
+
+
+<!-- =====================================================
+     DADOS E APLICAÇÃO
+
+     IMPORTANTE:
+     dados_K.js vem PRIMEIRO.
+     app.js usa a variável DADOS criada por ele.
+===================================================== -->
 
 <script src="dados/dados_K.js"></script>
 <script src="src/app.js"></script>
+
 </body>
 </html>
