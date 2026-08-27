@@ -62,6 +62,40 @@ decidimos o papel de cada pessoa do grupo por hoje, de forma que todos ficaram s
 
 **Decisões tomadas:** *diminuir a quantidade de historias que iammos trabalhar
 
+## Encontro 4 — 20/8 (aula)
+
+**Presentes:**Todos
+**Escriba:**Regis
+
+**O que se pretendia:**melhorar aonde erramos
+**O que se realizou:**conseguimos melhorar oque erramos
+
+**Tempo gasto por história:**
+
+| ID | Quem trabalhou:todos | Tempo (min)1hre30min |
+
+**Impedimentos encontrados:**nao podemos trabalhar fora da escola porque dois integrantes do grupo ficaram sem energia em casa
+**Decisões tomadas:** decidimos melhorar o CSS
+
+## Encontro 5 — 27/08 (aula)
+
+**Presentes:**
+**Escriba:**
+
+**O que se pretendia:**
+**O que se realizou:**
+
+**Tempo gasto por história:**
+
+| ID | Quem trabalhou | Tempo (min) |
+|---|Regis|10 min|
+
+**Impedimentos encontrados:** *Nenhum impedimento encontrado.*
+
+**Decisões tomadas:** *Até então, fizemos o repositório, enviamos o convite para todos do grupo entrarem, começamos a olhar o html, mudamos o html de acordo com as normas e trocamos a história 1, pois infrigia as normas,
+decidimos o papel de cada pessoa do grupo por hoje, de forma que todos ficaram satisfeitos e decidimos o nome do grupo.
+
+
 ## Sessão extra — [data], [duração]
 
 **Como foi combinada:** *(quando se marcou, por qual meio, quem confirmou)*
