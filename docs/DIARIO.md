@@ -9,16 +9,15 @@
 ## Encontro 1 — 30/07 (aula)
 
 
-**Presentes:**
-**Escriba:**
+**Presentes:**Todos
+**Escriba:**Regis
 
-**O que se pretendia:**
-**O que se realizou:**
+**O que se pretendia:**Organizar os dados.
+**O que se realizou:**organizamos e lemos as histórias para identificar os erros e depois corrigir.
 
 **Tempo gasto por história:**
 
-| ID | Quem trabalhou | Tempo (min) |
-|---|Regis|10 min|
+| ID | Quem trabalhou:todos | Tempo (min):1hr e 10 min  |
 
 **Impedimentos encontrados:** *Nenhum impedimento encontrado.*
 
@@ -55,7 +54,7 @@ decidimos o papel de cada pessoa do grupo por hoje, de forma que todos ficaram s
 
 **Tempo gasto por história:**
 
-| ID | Quem trabalhou:todos | Tempo (min):1hre10min |
+| ID | Quem trabalhou:todos | Tempo (min):1hr e 10min |
 
 
 **Impedimentos encontrados:**nao conseguimos trabalhar fora da escola por causa que tivemos aulas extras a tarde
@@ -72,29 +71,27 @@ decidimos o papel de cada pessoa do grupo por hoje, de forma que todos ficaram s
 
 **Tempo gasto por história:**
 
-| ID | Quem trabalhou:todos | Tempo (min)1hre30min |
+| ID | Quem trabalhou:todos | Tempo (min):1hr e 30min |
 
 **Impedimentos encontrados:**nao podemos trabalhar fora da escola porque dois integrantes do grupo ficaram sem energia em casa
 **Decisões tomadas:** decidimos melhorar o CSS
 
 ## Encontro 5 — 27/08 (aula)
 
-**Presentes:**
-**Escriba:**
+**Presentes:**Todos
+**Escriba:**Yan Lucas
 
-**O que se pretendia:**
-**O que se realizou:**
+**O que se pretendia:**Ajeitar o site e mudar o Java Script e CSS.
+**O que se realizou:**Mudamos o Java Script e o CSS
 
 **Tempo gasto por história:**
 
-| ID | Quem trabalhou | Tempo (min) |
-|---|Regis|10 min|
+| ID | Quem trabalhou:todos | Tempo (min):1hr e 20min |
 
-**Impedimentos encontrados:** *Nenhum impedimento encontrado.*
 
-**Decisões tomadas:** *Até então, fizemos o repositório, enviamos o convite para todos do grupo entrarem, começamos a olhar o html, mudamos o html de acordo com as normas e trocamos a história 1, pois infrigia as normas,
-decidimos o papel de cada pessoa do grupo por hoje, de forma que todos ficaram satisfeitos e decidimos o nome do grupo.
+**Impedimentos encontrados:** *.*
 
+**Decisões tomadas:** 
 
 ## Sessão extra — [data], [duração]
 
