@@ -89,7 +89,7 @@ decidimos o papel de cada pessoa do grupo por hoje, de forma que todos ficaram s
 | ID | Quem trabalhou:todos | Tempo (min):1hr e 20min |
 
 
-**Impedimentos encontrados:** O Membro do grupo faltou.
+**Impedimentos encontrados:** Um Membro do grupo faltou.
 
 **Decisões tomadas:**Modificar o HTML. 
 
