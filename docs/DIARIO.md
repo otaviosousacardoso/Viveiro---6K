@@ -89,9 +89,9 @@ decidimos o papel de cada pessoa do grupo por hoje, de forma que todos ficaram s
 | ID | Quem trabalhou:todos | Tempo (min):1hr e 20min |
 
 
-**Impedimentos encontrados:** *.*
+**Impedimentos encontrados:** O Membro do grupo faltou.
 
-**Decisões tomadas:** 
+**Decisões tomadas:**Modificar o HTML. 
 
 ## Sessão extra — [data], [duração]
 
