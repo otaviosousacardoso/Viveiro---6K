@@ -25,7 +25,7 @@
 decidimos o papel de cada pessoa do grupo por hoje, de forma que todos ficaram satisfeitos e decidimos o nome do grupo.
 
 
-## Encontro 2 — 6/8 (aula)
+## Encontro 2 — 06/08 (aula)
 
 **Presentes:**Todos
 **Escriba:**Rafael
@@ -44,7 +44,7 @@ decidimos o papel de cada pessoa do grupo por hoje, de forma que todos ficaram s
 
 ---
 
-## Encontro 3 — 13/8 (aula)
+## Encontro 3 — 13/08 (aula)
 
 **Presentes:**todos
 **Escriba:**João Lucas
@@ -61,7 +61,7 @@ decidimos o papel de cada pessoa do grupo por hoje, de forma que todos ficaram s
 
 **Decisões tomadas:** *diminuir a quantidade de historias que iammos trabalhar
 
-## Encontro 4 — 20/8 (aula)
+## Encontro 4 — 20/08 (aula)
 
 **Presentes:**Todos
 **Escriba:**Regis
