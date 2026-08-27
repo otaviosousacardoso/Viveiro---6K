@@ -45,7 +45,7 @@ decidimos o papel de cada pessoa do grupo por hoje, de forma que todos ficaram s
 
 ---
 
-## Encontro 1 — 30/07 (aula)
+## Encontro 3 — 13/8 (aula)
 
 **Presentes:**todos
 **Escriba:**João Lucas
