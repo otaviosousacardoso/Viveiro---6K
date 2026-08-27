@@ -29,13 +29,14 @@
 > outra; não fragmentar.
 
 ### A fazer
-- V-10,9,3,4,1
+
 
 ### Em andamento
-- V-10,9,3,4
+
 
 ### Concluído
 *(critérios de aceitação verificados — ver PRONTO.md)*
+- V-10,9,3,4,1
 
 ## 4. Registro da renegociação de escopo — 13/08
 
