@@ -29,10 +29,10 @@
 > outra; não fragmentar.
 
 ### A fazer
-- V-??
+- V-10,9,3,4,1
 
 ### Em andamento
-- V-??
+- V-10,9,3,4
 
 ### Concluído
 *(critérios de aceitação verificados — ver PRONTO.md)*
@@ -45,7 +45,7 @@
 **Comparação plano × realizado até aqui:**
 
 | ID | Estimado (h) | Gasto até 13/08 (h) | Observação |
-|---|---|---|---|
+|01|10|6|complicado|
 
 **O que foi retirado do compromisso:** *(IDs e motivo)*
 
