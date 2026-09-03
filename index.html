@@ -16,6 +16,7 @@
 
   <div class="marca">
     <h1>Viveiro</h1>
+
     <span class="lema">
       onde as ideias crescem antes de virar projeto
     </span>
@@ -44,7 +45,7 @@
 
 <main>
 
-  <!-- ================= MURAL ================= -->
+  <!-- MURAL -->
 
   <section id="mural">
 
@@ -56,33 +57,49 @@
         placeholder="buscar por título ou resumo..."
       >
 
-      <span id="contagem" class="contagem"></span>
+      <span
+        id="contagem"
+        class="contagem"
+      ></span>
 
     </div>
 
+    <p
+      id="filtro-ativo"
+      class="filtro-ativo"
+    ></p>
 
-    <p id="filtro-ativo" class="filtro-ativo"></p>
-
-
-    <div id="cartoes" class="cartoes"></div>
+    <div
+      id="cartoes"
+      class="cartoes"
+    ></div>
 
   </section>
 
 
-  <!-- ================= GRUPOS ================= -->
+  <!-- GRUPOS -->
 
-  <section id="grupos" class="escondido">
+  <section
+    id="grupos"
+    class="escondido"
+  >
 
     <h2>Grupos</h2>
 
-    <ul id="lista-grupos" class="lista-grupos"></ul>
+    <ul
+      id="lista-grupos"
+      class="lista-grupos"
+    ></ul>
 
   </section>
 
 
-  <!-- ================= PÁGINA DA PESSOA ================= -->
+  <!-- PÁGINA DA PESSOA -->
 
-  <section id="pagina-pessoa" class="escondido">
+  <section
+    id="pagina-pessoa"
+    class="escondido"
+  >
 
     <button
       id="voltar-pessoa"
@@ -96,9 +113,12 @@
   </section>
 
 
-  <!-- ================= PÁGINA DA IDEIA ================= -->
+  <!-- PÁGINA DA IDEIA -->
 
-  <section id="pagina-ideia" class="escondido">
+  <section
+    id="pagina-ideia"
+    class="escondido"
+  >
 
     <button
       id="voltar-ideia"
@@ -128,13 +148,9 @@
 </footer>
 
 
-<!-- IMPORTANTE:
-     Primeiro carrega os dados.
-     Depois carrega o app.
--->
-
 <script src="dados/dados_K.js"></script>
 <script src="src/app.js"></script>
 
 </body>
+
 </html>
