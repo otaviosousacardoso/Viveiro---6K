@@ -1,3421 +1,1981 @@
-/* ============================================================
-   Viveiro — lógica da página
+/* Viveiro — lógica da página
+V-01, V-03, V-04, V-09 e V-10
 
-   Usa diretamente:
-   dados/dados_K.js -> DADOS
+Os dados vêm de:
+dados/dados_K.js
 
-   Funcionalidades:
-   V-01 - Página da pessoa
-   V-03 - Publicar uma ideia
-   V-04 - Encontrar ideias
-   V-09 - Notificações internas
-   V-10 - Arquivar ideias
-============================================================ */
-
-
-/* ============================================================
-   ESTADO
-============================================================ */
+A variável DADOS é usada como base do sistema.
+*/
 
 var estado = {
-
-  pessoa: null,
-
-  busca: "",
-
-  tag: null,
-
-  aba: "mural",
-
-  pagina: "mural",
-
-  pessoaAberta: null,
-
-  ideiaAberta: null
-
+pessoa: null,
+busca: "",
+tag: null,
+aba: "mural",
+pessoaPagina: null,
+ideiaPagina: null
 };
 
+/* ================================================================
+PREPARAÇÃO DOS DADOS
+================================================================ */
 
-/* ============================================================
-   FUNÇÕES DE DADOS
-============================================================ */
+function prepararDados() {
+
+if (!DADOS.pessoas) {
+DADOS.pessoas = [];
+}
+
+if (!DADOS.ideias) {
+DADOS.ideias = [];
+}
+
+if (!DADOS.grupos) {
+DADOS.grupos = [];
+}
+
+/*
+
+* Cada ideia recebe sua própria lista de interessados.
+* Isso permite que a mesma pessoa não seja contabilizada
+* duas vezes.
+  */
+
+for (var i = 0; i < DADOS.ideias.length; i++) {
+
+```
+var ideia = DADOS.ideias[i];
+
+if (!Array.isArray(ideia.interessados)) {
+  ideia.interessados = [];
+
+  /*
+   * Se os dados antigos possuem apoios, criamos
+   * apenas a quantidade inicial de interesses.
+   * Os novos interesses passam a ser controlados
+   * individualmente.
+   */
+  var quantidade = Number(ideia.apoios) || 0;
+
+  for (var j = 0; j < quantidade; j++) {
+    ideia.interessados.push("legado-" + j);
+  }
+}
+
+if (ideia.arquivada === undefined) {
+  ideia.arquivada = false;
+}
+```
+
+}
+
+if (!DADOS.notificacoes) {
+DADOS.notificacoes = [];
+}
+}
+
+/* ================================================================
+ATALHOS
+================================================================ */
 
 function pessoaPorId(id) {
 
-  for (var i = 0; i < DADOS.pessoas.length; i++) {
+for (var i = 0; i < DADOS.pessoas.length; i++) {
 
-    if (
-      Number(DADOS.pessoas[i].id) ===
-      Number(id)
-    ) {
+```
+if (DADOS.pessoas[i].id === id) {
+  return DADOS.pessoas[i];
+}
+```
 
-      return DADOS.pessoas[i];
-
-    }
-
-  }
-
-  return null;
 }
 
-
-function ideiaPorId(id) {
-
-  for (var i = 0; i < DADOS.ideias.length; i++) {
-
-    if (
-      Number(DADOS.ideias[i].id) ===
-      Number(id)
-    ) {
-
-      return DADOS.ideias[i];
-
-    }
-
-  }
-
-  return null;
+return null;
 }
-
 
 function nomeDe(id) {
 
-  var pessoa = pessoaPorId(id);
+var p = pessoaPorId(id);
 
-  if (!pessoa) {
-    return "(desconhecido)";
-  }
-
-  /*
-    Se o dados_K possuir pseudônimo,
-    ele será mostrado no mural.
-    Caso contrário, usa o nome.
-  */
-
-  return pessoa.pseudonimo ||
-         pessoa.apelido ||
-         pessoa.nome ||
-         "(desconhecido)";
+return p ? p.nome : "(desconhecido)";
 }
 
+function ideiaPorId(id) {
 
-function nomeCompletoDe(id) {
+for (var i = 0; i < DADOS.ideias.length; i++) {
 
-  var pessoa = pessoaPorId(id);
-
-  if (!pessoa) {
-    return "(desconhecido)";
-  }
-
-  return pessoa.nome ||
-         pessoa.pseudonimo ||
-         "(desconhecido)";
+```
+if (DADOS.ideias[i].id === id) {
+  return DADOS.ideias[i];
 }
-
-
-/* ============================================================
-   LOCAL STORAGE
-============================================================ */
-
-function lerLista(chave) {
-
-  var dados = localStorage.getItem(chave);
-
-  if (!dados) {
-    return [];
-  }
-
-  try {
-
-    return JSON.parse(dados);
-
-  } catch (erro) {
-
-    return [];
-
-  }
+```
 
 }
 
+return null;
+}
 
-function salvarLista(chave, lista) {
+/* ================================================================
+DATA
+================================================================ */
 
-  localStorage.setItem(
-    chave,
-    JSON.stringify(lista)
-  );
+function dataHoje() {
+
+var agora = new Date();
+
+var dia = String(agora.getDate()).padStart(2, "0");
+var mes = String(agora.getMonth() + 1).padStart(2, "0");
+var ano = agora.getFullYear();
+
+return dia + "/" + mes + "/" + ano;
+}
+
+/* ================================================================
+TAGS
+================================================================ */
+
+function tagsDaIdeia(ideia) {
+
+if (Array.isArray(ideia.tags)) {
+return ideia.tags;
+}
+
+if (typeof ideia.tags === "string") {
+
+```
+return ideia.tags
+  .split(",")
+  .map(function (tag) {
+    return tag.trim();
+  })
+  .filter(function (tag) {
+    return tag !== "";
+  });
+```
 
 }
 
-
-/* ============================================================
-   ARQUIVAMENTO — V-10
-============================================================ */
-
-function lerArquivadas() {
-
-  return lerLista(
-    "viveiro_arquivadas"
-  );
-
+return [];
 }
 
-
-function salvarArquivadas(lista) {
-
-  salvarLista(
-    "viveiro_arquivadas",
-    lista
-  );
-
-}
-
-
-function ideiaArquivada(id) {
-
-  var lista = lerArquivadas();
-
-  return lista.indexOf(Number(id)) !== -1;
-
-}
-
-
-function arquivarIdeia(id) {
-
-  var lista = lerArquivadas();
-
-  id = Number(id);
-
-  if (lista.indexOf(id) === -1) {
-
-    lista.push(id);
-
-  }
-
-  salvarArquivadas(lista);
-
-  estado.pagina = "mural";
-
-  estado.aba = "mural";
-
-  desenhar();
-
-}
-
-
-function desarquivarIdeia(id) {
-
-  var lista = lerArquivadas();
-
-  id = Number(id);
-
-  var novaLista = [];
-
-  for (var i = 0; i < lista.length; i++) {
-
-    if (Number(lista[i]) !== id) {
-
-      novaLista.push(lista[i]);
-
-    }
-
-  }
-
-  salvarArquivadas(novaLista);
-
-  desenhar();
-
-}
-
-
-/* ============================================================
-   NOTIFICAÇÕES — V-09
-============================================================ */
-
-function lerNotificacoes() {
-
-  return lerLista(
-    "viveiro_notificacoes"
-  );
-
-}
-
-
-function salvarNotificacoes(lista) {
-
-  salvarLista(
-    "viveiro_notificacoes",
-    lista
-  );
-
-}
-
-
-function criarNotificacao(idIdeia, idInteressado) {
-
-  var ideia = ideiaPorId(idIdeia);
-
-  if (!ideia) {
-    return;
-  }
-
-
-  /*
-    A notificação fica associada ao autor
-    da ideia.
-  */
-
-  var notificacoes =
-    lerNotificacoes();
-
-
-  var notificacao = {
-
-    id: Date.now(),
-
-    autor: Number(ideia.autor),
-
-    interessado: Number(idInteressado),
-
-    ideia: Number(idIdeia),
-
-    lida: false,
-
-    data: new Date().toLocaleString("pt-BR")
-
-  };
-
-
-  notificacoes.unshift(
-    notificacao
-  );
-
-
-  salvarNotificacoes(
-    notificacoes
-  );
-
-
-  atualizarContadorNotificacoes();
-
-}
-
-
-/* ============================================================
-   BUSCA — V-04
-============================================================ */
+/* ================================================================
+FILTRAGEM / V-04
+================================================================ */
 
 function ideiasVisiveis() {
 
-  var resultado = [];
+var resultado = [];
 
-  var texto =
-    estado.busca
-      .trim()
-      .toLowerCase();
+var texto = estado.busca.toLowerCase().trim();
 
+for (var i = 0; i < DADOS.ideias.length; i++) {
 
-  for (
-    var i = 0;
-    i < DADOS.ideias.length;
-    i++
-  ) {
+```
+var ideia = DADOS.ideias[i];
 
-    var ideia = DADOS.ideias[i];
+/*
+ * Ideias arquivadas não aparecem no mural.
+ */
+if (ideia.arquivada === true) {
+  continue;
+}
 
+var titulo = String(ideia.titulo || "").toLowerCase();
+var resumo = String(ideia.resumo || "").toLowerCase();
 
-    /*
-      Ideias arquivadas não aparecem
-      no mural público.
-    */
+var tags = tagsDaIdeia(ideia);
 
-    if (
-      ideiaArquivada(ideia.id)
-    ) {
+var textoTags = tags.join(" ").toLowerCase();
 
-      continue;
+var casaTexto = true;
 
-    }
+if (texto !== "") {
 
-
-    /*
-      Busca.
-    */
-
-    var casaTexto = true;
-
-
-    if (texto !== "") {
-
-      var titulo =
-        String(
-          ideia.titulo || ""
-        ).toLowerCase();
-
-
-      var resumo =
-        String(
-          ideia.resumo || ""
-        ).toLowerCase();
-
-
-      /*
-        Também considera tags na busca.
-        Isso ajuda a tornar o resultado
-        mais relevante.
-      */
-
-      var tags =
-        (ideia.tags || [])
-          .join(" ")
-          .toLowerCase();
-
-
-      casaTexto =
-        titulo.indexOf(texto) !== -1 ||
-        resumo.indexOf(texto) !== -1 ||
-        tags.indexOf(texto) !== -1;
-
-    }
-
-
-    /*
-      Tag clicada.
-    */
-
-    var casaTag = true;
-
-
-    if (estado.tag !== null) {
-
-      var listaTags =
-        ideia.tags || [];
-
-
-      casaTag =
-        listaTags.indexOf(
-          estado.tag
-        ) !== -1;
-
-    }
-
-
-    if (
-      casaTexto &&
-      casaTag
-    ) {
-
-      resultado.push(ideia);
-
-    }
-
-  }
-
-
-  /*
-    Ideias mais novas primeiro.
-  */
-
-  resultado.sort(
-    function (a, b) {
-
-      return Number(b.id) -
-             Number(a.id);
-
-    }
-  );
-
-
-  return resultado;
+  casaTexto =
+    titulo.includes(texto) ||
+    resumo.includes(texto) ||
+    textoTags.includes(texto);
 
 }
 
+var casaTag = true;
 
-/* ============================================================
-   DESENHAR TUDO
-============================================================ */
+if (estado.tag !== null) {
+
+  casaTag =
+    tags.indexOf(estado.tag) >= 0;
+
+}
+
+if (casaTexto && casaTag) {
+
+  resultado.push(ideia);
+
+}
+```
+
+}
+
+/*
+
+* Ideias que combinam melhor com a busca ficam primeiro.
+  */
+  if (texto !== "") {
+
+```
+resultado.sort(function (a, b) {
+```
+
+```
+  var tituloA = String(a.titulo || "").toLowerCase();
+  var tituloB = String(b.titulo || "").toLowerCase();
+
+  var resumoA = String(a.resumo || "").toLowerCase();
+  var resumoB = String(b.resumo || "").toLowerCase();
+
+  var pontosA = 0;
+  var pontosB = 0;
+
+  if (tituloA.includes(texto)) pontosA += 3;
+  if (resumoA.includes(texto)) pontosA += 1;
+
+  if (tituloB.includes(texto)) pontosB += 3;
+  if (resumoB.includes(texto)) pontosB += 1;
+
+  return pontosB - pontosA;
+
+});
+```
+
+}
+
+return resultado;
+}
+
+/* ================================================================
+DESENHO PRINCIPAL
+================================================================ */
 
 function desenhar() {
 
-  desenharSeletorDePessoas();
+desenharSeletorDePessoas();
+desenharMural();
+desenharGrupos();
+desenharArquivadas();
+desenharNotificacoes();
+atualizarContadorNotificacoes();
 
-  desenharMural();
-
-  desenharGrupos();
-
-  desenharArquivo();
-
-  desenharNotificacoes();
-
-  atualizarContadorNotificacoes();
-
-  document.getElementById("base").textContent =
-    "base " + DADOS.codigo;
-
-
-  mostrarPaginaAtual();
-
+document.getElementById("base").textContent =
+"base " + (DADOS.codigo || "K");
 }
 
-
-/* ============================================================
-   SELETOR DE PESSOAS
-============================================================ */
+/* ================================================================
+SELETOR DE PESSOA
+================================================================ */
 
 function desenharSeletorDePessoas() {
 
-  var alvo =
-    document.getElementById("quem");
+var alvo = document.getElementById("quem");
 
+if (alvo.options.length === 0) {
 
-  if (
-    alvo.options.length === 0
-  ) {
+```
+for (var i = 0; i < DADOS.pessoas.length; i++) {
 
-    for (
-      var i = 0;
-      i < DADOS.pessoas.length;
-      i++
-    ) {
+  var p = DADOS.pessoas[i];
 
-      var pessoa =
-        DADOS.pessoas[i];
+  var opcao = document.createElement("option");
 
+  opcao.value = p.id;
 
-      var opcao =
-        document.createElement(
-          "option"
-        );
+  opcao.textContent =
+    p.nome +
+    (p.curso ? " (" + p.curso + ")" : "");
 
+  alvo.appendChild(opcao);
 
-      opcao.value =
-        pessoa.id;
-
-
-      opcao.textContent =
-        nomeDe(pessoa.id) +
-        (
-          pessoa.curso
-            ? " (" + pessoa.curso + ")"
-            : ""
-        );
-
-
-      alvo.appendChild(
-        opcao
-      );
-
-    }
-
-  }
-
-
-  alvo.value =
-    estado.pessoa;
+}
+```
 
 }
 
+alvo.value = estado.pessoa;
+}
 
-/* ============================================================
-   MURAL
-============================================================ */
+/* ================================================================
+MURAL
+================================================================ */
 
 function desenharMural() {
 
-  var lista =
-    ideiasVisiveis();
+var lista = ideiasVisiveis();
 
+var alvo = document.getElementById("cartoes");
 
-  var alvo =
-    document.getElementById(
-      "cartoes"
-    );
+alvo.innerHTML = "";
 
+for (var i = 0; i < lista.length; i++) {
 
-  alvo.innerHTML = "";
-
-
-  for (
-    var i = 0;
-    i < lista.length;
-    i++
-  ) {
-
-    alvo.appendChild(
-      montarCartao(
-        lista[i]
-      )
-    );
-
-  }
-
-
-  var totalPublicas =
-    DADOS.ideias.filter(
-      function (ideia) {
-
-        return !ideiaArquivada(
-          ideia.id
-        );
-
-      }
-    ).length;
-
-
-  document.getElementById(
-    "contagem"
-  ).textContent =
-    lista.length +
-    " de " +
-    totalPublicas +
-    " ideias";
-
-
-  var aviso =
-    document.getElementById(
-      "filtro-ativo"
-    );
-
-
-  if (
-    estado.tag !== null
-  ) {
-
-    aviso.textContent =
-      "mostrando apenas ideias com a etiqueta: " +
-      estado.tag;
-
-  } else {
-
-    aviso.textContent = "";
-
-  }
-
-
-  if (
-    lista.length === 0
-  ) {
-
-    var vazio =
-      document.createElement(
-        "p"
-      );
-
-    vazio.className =
-      "mensagem-vazia";
-
-    vazio.textContent =
-      estado.busca !== ""
-        ? "nenhuma ideia encontrada para essa busca."
-        : "nenhuma ideia disponível no mural.";
-
-    alvo.appendChild(
-      vazio
-    );
-
-  }
+```
+alvo.appendChild(
+  montarCartao(lista[i])
+);
+```
 
 }
 
+document.getElementById("contagem").textContent =
+lista.length +
+" de " +
+DADOS.ideias.filter(function (ideia) {
+return ideia.arquivada !== true;
+}).length +
+" ideias";
 
-/* ============================================================
-   CARTÃO DE IDEIA
-============================================================ */
+var aviso = document.getElementById("filtro-ativo");
+
+if (estado.tag !== null) {
+
+```
+aviso.textContent =
+  "mostrando apenas ideias com a etiqueta: " +
+  estado.tag;
+```
+
+} else if (estado.busca !== "") {
+
+```
+aviso.textContent =
+  "resultados para: " +
+  estado.busca;
+```
+
+} else {
+
+```
+aviso.textContent = "";
+```
+
+}
+
+var vazio = document.getElementById("sem-ideias");
+
+if (lista.length === 0) {
+
+```
+vazio.classList.remove("escondido");
+```
+
+} else {
+
+```
+vazio.classList.add("escondido");
+```
+
+}
+
+}
+
+/* ================================================================
+CARTÃO
+================================================================ */
 
 function montarCartao(ideia) {
 
-  var cartao =
-    document.createElement(
-      "div"
-    );
+var cartao = document.createElement("div");
 
-  cartao.className =
-    "cartao";
+cartao.className = "cartao";
 
+/* título */
+
+var titulo = document.createElement("h3");
+
+titulo.textContent =
+ideia.titulo || "Sem título";
+
+titulo.className = "titulo-ideia";
+
+titulo.onclick = function () {
+abrirIdeia(ideia.id);
+};
+
+cartao.appendChild(titulo);
+
+/* autoria */
+
+var autoria = document.createElement("div");
+
+autoria.className = "autoria";
+
+var autor = document.createElement("button");
+
+autor.className = "link-autor";
+
+autor.textContent =
+nomeDe(ideia.autor);
+
+autor.onclick = function () {
+abrirPessoa(ideia.autor);
+};
+
+autoria.appendChild(autor);
+
+var data = document.createElement("span");
+
+data.textContent =
+" · " + (ideia.data || "");
+
+autoria.appendChild(data);
+
+cartao.appendChild(autoria);
+
+/* resumo */
+
+var resumo = document.createElement("p");
+
+resumo.className = "resumo";
+
+resumo.textContent =
+ideia.resumo || "";
+
+cartao.appendChild(resumo);
+
+/* tags */
+
+var tags = document.createElement("div");
+
+tags.className = "tags";
+
+var listaTags = tagsDaIdeia(ideia);
+
+for (var i = 0; i < listaTags.length; i++) {
+
+```
+var etiqueta =
+  document.createElement("button");
+
+etiqueta.className = "etiqueta";
+
+etiqueta.textContent =
+  listaTags[i];
+
+etiqueta.onclick =
+  criarCliqueDeTag(listaTags[i]);
+
+tags.appendChild(etiqueta);
+```
+
+}
+
+cartao.appendChild(tags);
+
+/* rodapé */
+
+var rodape =
+document.createElement("div");
+
+rodape.className = "rodape";
+
+/* ============================================================
+MOSTRAR INTERESSE
+============================================================ */
+
+var botao =
+document.createElement("button");
+
+botao.className = "apoiar";
+
+var interessados =
+ideia.interessados || [];
+
+var jaInteressado =
+interessados.indexOf(estado.pessoa) !== -1;
+
+if (jaInteressado) {
+
+```
+botao.textContent =
+  "retirar interesse";
+
+botao.classList.add("interessado");
+```
+
+} else {
+
+```
+botao.textContent =
+  "mostrar interesse";
+```
+
+}
+
+botao.onclick =
+criarCliqueDeApoio(ideia.id);
+
+rodape.appendChild(botao);
+
+/* contador */
+
+var contador =
+document.createElement("span");
+
+contador.className = "apoios";
+
+contador.textContent =
+interessados.length +
+(interessados.length === 1
+? " interessado"
+: " interessados");
+
+rodape.appendChild(contador);
+
+/* arquivar */
+
+if (ideia.autor === estado.pessoa) {
+
+```
+var arquivar =
+  document.createElement("button");
+
+arquivar.className =
+  "botao-arquivar";
+
+arquivar.textContent =
+  "arquivar";
+
+arquivar.onclick = function () {
+
+  arquivarIdeia(ideia.id);
+
+};
+
+rodape.appendChild(arquivar);
+```
+
+}
+
+cartao.appendChild(rodape);
+
+return cartao;
+}
+
+/* ================================================================
+INTERESSE
+================================================================ */
+
+function criarCliqueDeApoio(idIdeia) {
+
+return function () {
+
+```
+var ideia =
+  ideiaPorId(idIdeia);
+
+if (!ideia) return;
+
+if (!Array.isArray(ideia.interessados)) {
+
+  ideia.interessados = [];
+
+}
+
+
+var indice =
+  ideia.interessados.indexOf(estado.pessoa);
+
+
+/*
+ * JÁ TEM INTERESSE
+ *
+ * Segundo clique:
+ * remove a pessoa da lista.
+ */
+
+if (indice !== -1) {
+
+  ideia.interessados.splice(
+    indice,
+    1
+  );
+
+  ideia.apoios =
+    ideia.interessados.length;
 
   /*
-    TÍTULO
-  */
-
-  var titulo =
-    document.createElement(
-      "h3"
-    );
-
-
-  var linkTitulo =
-    document.createElement(
-      "button"
-    );
-
-
-  linkTitulo.className =
-    "link-titulo";
-
-
-  linkTitulo.type =
-    "button";
-
-
-  linkTitulo.textContent =
-    ideia.titulo;
-
-
-  linkTitulo.onclick =
-    function () {
-
-      abrirIdeia(
-        ideia.id
-      );
-
-    };
-
-
-  titulo.appendChild(
-    linkTitulo
-  );
-
-
-  cartao.appendChild(
-    titulo
-  );
-
-
-  /*
-    AUTOR
-  */
-
-  var autoria =
-    document.createElement(
-      "div"
-    );
-
-
-  autoria.className =
-    "autoria";
-
-
-  var autor =
-    document.createElement(
-      "button"
-    );
-
-
-  autor.type =
-    "button";
-
-
-  autor.className =
-    "link-autor";
-
-
-  autor.textContent =
-    nomeDe(
-      ideia.autor
-    );
-
-
-  autor.onclick =
-    function () {
-
-      abrirPessoa(
-        ideia.autor
-      );
-
-    };
-
-
-  autoria.appendChild(
-    autor
-  );
-
-
-  autoria.appendChild(
-    document.createTextNode(
-      " · " +
-      (ideia.data || "")
-    )
-  );
-
-
-  cartao.appendChild(
-    autoria
-  );
-
-
-  /*
-    RESUMO
-  */
-
-  var resumo =
-    document.createElement(
-      "p"
-    );
-
-
-  resumo.className =
-    "resumo";
-
-
-  resumo.textContent =
-    ideia.resumo || "";
-
-
-  cartao.appendChild(
-    resumo
-  );
-
-
-  /*
-    TAGS
-  */
-
-  var tags =
-    document.createElement(
-      "div"
-    );
-
-
-  tags.className =
-    "tags";
-
-
-  var listaTags =
-    ideia.tags || [];
-
+   * Remove também a notificação
+   * correspondente, se ainda estiver
+   * pendente.
+   */
 
   for (
-    var i = 0;
-    i < listaTags.length;
-    i++
+    var i = DADOS.notificacoes.length - 1;
+    i >= 0;
+    i--
   ) {
 
-    var etiqueta =
-      document.createElement(
-        "button"
-      );
-
-
-    etiqueta.type =
-      "button";
-
-
-    etiqueta.className =
-      "etiqueta";
-
-
-    etiqueta.textContent =
-      listaTags[i];
-
-
-    etiqueta.onclick =
-      criarCliqueDeTag(
-        listaTags[i]
-      );
-
-
-    tags.appendChild(
-      etiqueta
-    );
-
-  }
-
-
-  cartao.appendChild(
-    tags
-  );
-
-
-  /*
-    RODAPÉ
-  */
-
-  var rodape =
-    document.createElement(
-      "div"
-    );
-
-
-  rodape.className =
-    "rodape";
-
-
-  /*
-    APOIAR
-  */
-
-  var apoiar =
-    document.createElement(
-      "button"
-    );
-
-
-  apoiar.type =
-    "button";
-
-
-  apoiar.className =
-    "apoiar";
-
-
-  apoiar.textContent =
-    "demonstrar interesse";
-
-
-  apoiar.onclick =
-    criarCliqueDeApoio(
-      ideia.id
-    );
-
-
-  rodape.appendChild(
-    apoiar
-  );
-
-
-  /*
-    CONTADOR
-  */
-
-  var contador =
-    document.createElement(
-      "span"
-    );
-
-
-  contador.className =
-    "apoios";
-
-
-  contador.textContent =
-    (ideia.apoios || 0) +
-    " apoios";
-
-
-  rodape.appendChild(
-    contador
-  );
-
-
-  /*
-    ARQUIVAR.
-
-    Só o dono da ideia
-    pode arquivá-la.
-  */
-
-  if (
-    Number(ideia.autor) ===
-    Number(estado.pessoa)
-  ) {
-
-    var arquivo =
-      document.createElement(
-        "button"
-      );
-
-
-    arquivo.type =
-      "button";
-
-
-    arquivo.className =
-      "botao-arquivar";
-
-
-    arquivo.textContent =
-      "arquivar";
-
-
-    arquivo.onclick =
-      function () {
-
-        arquivarIdeia(
-          ideia.id
-        );
-
-      };
-
-
-    rodape.appendChild(
-      arquivo
-    );
-
-  }
-
-
-  cartao.appendChild(
-    rodape
-  );
-
-
-  return cartao;
-
-}
-
-
-/* ============================================================
-   APOIAR — V-09
-============================================================ */
-
-function criarCliqueDeApoio(
-  idIdeia
-) {
-
-  return function () {
-
-    var ideia =
-      ideiaPorId(
-        idIdeia
-      );
-
-
-    if (!ideia) {
-      return;
-    }
-
-
-    /*
-      O autor não precisa
-      receber notificação
-      quando demonstra interesse
-      na própria ideia.
-    */
+    var n =
+      DADOS.notificacoes[i];
 
     if (
-      Number(ideia.autor) !==
-      Number(estado.pessoa)
+      n.ideia === ideia.id &&
+      n.pessoa === estado.pessoa
     ) {
 
-      ideia.apoios =
-        Number(ideia.apoios || 0) + 1;
-
-
-      criarNotificacao(
-        ideia.id,
-        estado.pessoa
-      );
+      DADOS.notificacoes.splice(i, 1);
 
     }
 
-
-    /*
-      Atualiza a tela sem
-      recarregar a página.
-    */
-
-    desenharMural();
-
-    desenharNotificacoes();
-
-    atualizarContadorNotificacoes();
-
-  };
+  }
 
 }
 
 
-/* ============================================================
-   TAG
-============================================================ */
+/*
+ * NÃO TEM INTERESSE
+ *
+ * Primeiro clique:
+ * adiciona a pessoa.
+ */
+
+else {
+
+  ideia.interessados.push(
+    estado.pessoa
+  );
+
+  ideia.apoios =
+    ideia.interessados.length;
+
+
+  /*
+   * V-09
+   *
+   * O autor recebe um aviso interno
+   * quando outra pessoa demonstra interesse.
+   */
+
+  if (
+    ideia.autor !== estado.pessoa
+  ) {
+
+    var notificacao = {
+
+      id:
+        Date.now() +
+        "-" +
+        Math.random(),
+
+      autor:
+        ideia.autor,
+
+      pessoa:
+        estado.pessoa,
+
+      ideia:
+        ideia.id,
+
+      titulo:
+        ideia.titulo,
+
+      data:
+        dataHoje(),
+
+      lida: false
+
+    };
+
+    DADOS.notificacoes.push(
+      notificacao
+    );
+
+  }
+
+}
+
+
+desenharMural();
+
+desenharNotificacoes();
+
+atualizarContadorNotificacoes();
+```
+
+};
+
+}
+
+/* ================================================================
+TAG
+================================================================ */
 
 function criarCliqueDeTag(tag) {
 
-  return function () {
+return function () {
 
-    estado.tag = tag;
+```
+estado.tag = tag;
 
-    estado.aba = "mural";
+trocarAba("mural");
 
-    estado.pagina = "mural";
+desenharMural();
+```
 
-    desenhar();
-
-  };
-
-}
-
-
-/* ============================================================
-   PÁGINA DA IDEIA
-============================================================ */
-
-function abrirIdeia(id) {
-
-  estado.pagina =
-    "ideia";
-
-  estado.ideiaAberta =
-    Number(id);
-
-  mostrarPaginaAtual();
+};
 
 }
 
-
-function desenharIdeia() {
-
-  var alvo =
-    document.getElementById(
-      "conteudo-ideia"
-    );
-
-
-  alvo.innerHTML = "";
-
-
-  var ideia =
-    ideiaPorId(
-      estado.ideiaAberta
-    );
-
-
-  if (!ideia) {
-
-    alvo.textContent =
-      "ideia não encontrada.";
-
-    return;
-
-  }
-
-
-  var titulo =
-    document.createElement(
-      "h2"
-    );
-
-
-  titulo.textContent =
-    ideia.titulo;
-
-
-  alvo.appendChild(
-    titulo
-  );
-
-
-  /*
-    AUTOR
-  */
-
-  var autoria =
-    document.createElement(
-      "p"
-    );
-
-
-  autoria.className =
-    "autoria-grande";
-
-
-  var autor =
-    document.createElement(
-      "button"
-    );
-
-
-  autor.type =
-    "button";
-
-
-  autor.className =
-    "link-autor";
-
-
-  autor.textContent =
-    nomeDe(
-      ideia.autor
-    );
-
-
-  autor.onclick =
-    function () {
-
-      abrirPessoa(
-        ideia.autor
-      );
-
-    };
-
-
-  autoria.appendChild(
-    autor
-  );
-
-
-  autoria.appendChild(
-    document.createTextNode(
-      " · " +
-      (ideia.data || "")
-    )
-  );
-
-
-  alvo.appendChild(
-    autoria
-  );
-
-
-  /*
-    RESUMO
-  */
-
-  var resumo =
-    document.createElement(
-      "p"
-    );
-
-
-  resumo.className =
-    "resumo-grande";
-
-
-  resumo.textContent =
-    ideia.resumo || "";
-
-
-  alvo.appendChild(
-    resumo
-  );
-
-
-  /*
-    TAGS
-  */
-
-  var tags =
-    document.createElement(
-      "div"
-    );
-
-
-  tags.className =
-    "tags";
-
-
-  var listaTags =
-    ideia.tags || [];
-
-
-  for (
-    var i = 0;
-    i < listaTags.length;
-    i++
-  ) {
-
-    var etiqueta =
-      document.createElement(
-        "span"
-      );
-
-
-    etiqueta.className =
-      "etiqueta";
-
-
-    etiqueta.textContent =
-      listaTags[i];
-
-
-    tags.appendChild(
-      etiqueta
-    );
-
-  }
-
-
-  alvo.appendChild(
-    tags
-  );
-
-
-  /*
-    AÇÕES
-  */
-
-  var acoes =
-    document.createElement(
-      "div"
-    );
-
-
-  acoes.className =
-    "detalhe-acoes";
-
-
-  var apoiar =
-    document.createElement(
-      "button"
-    );
-
-
-  apoiar.type =
-    "button";
-
-
-  apoiar.className =
-    "apoiar";
-
-
-  apoiar.textContent =
-    "demonstrar interesse";
-
-
-  apoiar.onclick =
-    criarCliqueDeApoio(
-      ideia.id
-    );
-
-
-  acoes.appendChild(
-    apoiar
-  );
-
-
-  var contador =
-    document.createElement(
-      "span"
-    );
-
-
-  contador.className =
-    "apoios";
-
-
-  contador.textContent =
-    (ideia.apoios || 0) +
-    " apoios";
-
-
-  acoes.appendChild(
-    contador
-  );
-
-
-  /*
-    ARQUIVAR
-  */
-
-  if (
-    Number(ideia.autor) ===
-    Number(estado.pessoa)
-  ) {
-
-    var arquivo =
-      document.createElement(
-        "button"
-      );
-
-
-    arquivo.type =
-      "button";
-
-
-    arquivo.className =
-      "botao-arquivar";
-
-
-    arquivo.textContent =
-      ideiaArquivada(
-        ideia.id
-      )
-        ? "desarquivar"
-        : "arquivar";
-
-
-    arquivo.onclick =
-      function () {
-
-        if (
-          ideiaArquivada(
-            ideia.id
-          )
-        ) {
-
-          desarquivarIdeia(
-            ideia.id
-          );
-
-        } else {
-
-          arquivarIdeia(
-            ideia.id
-          );
-
-        }
-
-      };
-
-
-    acoes.appendChild(
-      arquivo
-    );
-
-  }
-
-
-  alvo.appendChild(
-    acoes
-  );
-
-}
-
-
-/* ============================================================
-   PÁGINA DA PESSOA — V-01
-============================================================ */
-
-function abrirPessoa(id) {
-
-  estado.pagina =
-    "pessoa";
-
-  estado.pessoaAberta =
-    Number(id);
-
-  mostrarPaginaAtual();
-
-}
-
-
-function obterCampoPessoa(
-  pessoa,
-  campos,
-  padrao
-) {
-
-  for (
-    var i = 0;
-    i < campos.length;
-    i++
-  ) {
-
-    if (
-      pessoa[campos[i]] !==
-      undefined &&
-      pessoa[campos[i]] !==
-      null
-    ) {
-
-      return pessoa[campos[i]];
-
-    }
-
-  }
-
-  return padrao;
-
-}
-
-
-function transformarLista(valor) {
-
-  if (
-    Array.isArray(valor)
-  ) {
-
-    return valor;
-
-  }
-
-
-  if (
-    typeof valor ===
-    "string"
-  ) {
-
-    return valor
-      .split(",")
-      .map(
-        function (item) {
-          return item.trim();
-        }
-      )
-      .filter(
-        function (item) {
-          return item !== "";
-        }
-      );
-
-  }
-
-
-  return [];
-
-}
-
-
-function desenharPessoa() {
-
-  var alvo =
-    document.getElementById(
-      "conteudo-pessoa"
-    );
-
-
-  alvo.innerHTML = "";
-
-
-  var pessoa =
-    pessoaPorId(
-      estado.pessoaAberta
-    );
-
-
-  if (!pessoa) {
-
-    alvo.textContent =
-      "pessoa não encontrada.";
-
-    return;
-
-  }
-
-
-  /*
-    NOME / PSEUDÔNIMO
-  */
-
-  var titulo =
-    document.createElement(
-      "h2"
-    );
-
-
-  titulo.textContent =
-    nomeDe(
-      pessoa.id
-    );
-
-
-  alvo.appendChild(
-    titulo
-  );
-
-
-  /*
-    TIPO
-  */
-
-  var tipo =
-    obterCampoPessoa(
-      pessoa,
-      [
-        "tipo",
-        "perfil",
-        "papel",
-        "funcao"
-      ],
-      ""
-    );
-
-
-  if (tipo !== "") {
-
-    var tipoElemento =
-      document.createElement(
-        "p"
-      );
-
-
-    tipoElemento.className =
-      "tipo-pessoa";
-
-
-    tipoElemento.textContent =
-      tipo;
-
-
-    alvo.appendChild(
-      tipoElemento
-    );
-
-  }
-
-
-  /*
-    INTERESSES
-  */
-
-  var interesses =
-    obterCampoPessoa(
-      pessoa,
-      [
-        "interesses",
-        "interessesPessoais"
-      ],
-      []
-    );
-
-
-  interesses =
-    transformarLista(
-      interesses
-    );
-
-
-  var blocoInteresses =
-    document.createElement(
-      "div"
-    );
-
-
-  blocoInteresses.className =
-    "perfil-bloco";
-
-
-  var tituloInteresses =
-    document.createElement(
-      "h3"
-    );
-
-
-  tituloInteresses.textContent =
-    "Interesses";
-
-
-  blocoInteresses.appendChild(
-    tituloInteresses
-  );
-
-
-  if (
-    interesses.length === 0
-  ) {
-
-    var nenhumInteresse =
-      document.createElement(
-        "p"
-      );
-
-
-    nenhumInteresse.textContent =
-      "nenhum interesse informado.";
-
-
-    blocoInteresses.appendChild(
-      nenhumInteresse
-    );
-
-  } else {
-
-    var listaInteresses =
-      document.createElement(
-        "div"
-      );
-
-
-    listaInteresses.className =
-      "lista-interesses";
-
-
-    for (
-      var i = 0;
-      i < interesses.length;
-      i++
-    ) {
-
-      var interesse =
-        document.createElement(
-          "span"
-        );
-
-
-      interesse.className =
-        "interesse";
-
-
-      interesse.textContent =
-        interesses[i];
-
-
-      listaInteresses.appendChild(
-        interesse
-      );
-
-    }
-
-
-    blocoInteresses.appendChild(
-      listaInteresses
-    );
-
-  }
-
-
-  alvo.appendChild(
-    blocoInteresses
-  );
-
-
-  /*
-    MUDANÇAS
-  */
-
-  var mudancas =
-    obterCampoPessoa(
-      pessoa,
-      [
-        "mudancas",
-        "mudancasDeInteresse",
-        "mudancasInteresses"
-      ],
-      []
-    );
-
-
-  mudancas =
-    transformarLista(
-      mudancas
-    );
-
-
-  var blocoMudancas =
-    document.createElement(
-      "div"
-    );
-
-
-  blocoMudancas.className =
-    "perfil-bloco";
-
-
-  var tituloMudancas =
-    document.createElement(
-      "h3"
-    );
-
-
-  tituloMudancas.textContent =
-    "Mudanças";
-
-
-  blocoMudancas.appendChild(
-    tituloMudancas
-  );
-
-
-  if (
-    mudancas.length === 0
-  ) {
-
-    var nenhumaMudanca =
-      document.createElement(
-        "p"
-      );
-
-
-    nenhumaMudanca.textContent =
-      "nenhuma mudança registrada.";
-
-
-    blocoMudancas.appendChild(
-      nenhumaMudanca
-    );
-
-  } else {
-
-    var listaMudancas =
-      document.createElement(
-        "ul"
-      );
-
-
-    listaMudancas.className =
-      "lista-mudancas";
-
-
-    for (
-      var j = 0;
-      j < mudancas.length;
-      j++
-    ) {
-
-      var mudanca =
-        document.createElement(
-          "li"
-        );
-
-
-      mudanca.textContent =
-        mudancas[j];
-
-
-      listaMudancas.appendChild(
-        mudanca
-      );
-
-    }
-
-
-    blocoMudancas.appendChild(
-      listaMudancas
-    );
-
-  }
-
-
-  alvo.appendChild(
-    blocoMudancas
-  );
-
-
-  /*
-    NOME REAL
-
-    O nome real não é mostrado
-    publicamente. Ele fica disponível
-    somente quando a pessoa entra
-    em uma conversa.
-
-    Como esta versão ainda não possui
-    módulo de conversa, o nome fica
-    preparado para essa utilização.
-  */
-
-
-  /*
-    IDEIAS PUBLICADAS
-  */
-
-  var blocoIdeias =
-    document.createElement(
-      "div"
-    );
-
-
-  blocoIdeias.className =
-    "perfil-bloco";
-
-
-  var tituloIdeias =
-    document.createElement(
-      "h3"
-    );
-
-
-  tituloIdeias.textContent =
-    "Ideias publicadas";
-
-
-  blocoIdeias.appendChild(
-    tituloIdeias
-  );
-
-
-  var ideiasPessoa =
-    [];
-
-
-  for (
-    var k = 0;
-    k < DADOS.ideias.length;
-    k++
-  ) {
-
-    if (
-      Number(
-        DADOS.ideias[k].autor
-      ) ===
-      Number(
-        pessoa.id
-      )
-    ) {
-
-      /*
-        Ideias arquivadas são privadas
-        e não aparecem na página pública.
-      */
-
-      if (
-        !ideiaArquivada(
-          DADOS.ideias[k].id
-        )
-      ) {
-
-        ideiasPessoa.push(
-          DADOS.ideias[k]
-        );
-
-      }
-
-    }
-
-  }
-
-
-  if (
-    ideiasPessoa.length === 0
-  ) {
-
-    var nenhumaIdeia =
-      document.createElement(
-        "p"
-      );
-
-
-    nenhumaIdeia.className =
-      "mensagem-vazia";
-
-
-    nenhumaIdeia.textContent =
-      "ainda não publicou ideias";
-
-
-    blocoIdeias.appendChild(
-      nenhumaIdeia
-    );
-
-  } else {
-
-    var listaIdeias =
-      document.createElement(
-        "ul"
-      );
-
-
-    listaIdeias.className =
-      "lista-ideias-pessoa";
-
-
-    for (
-      var l = 0;
-      l < ideiasPessoa.length;
-      l++
-    ) {
-
-      var item =
-        document.createElement(
-          "li"
-        );
-
-
-      var link =
-        document.createElement(
-          "button"
-        );
-
-
-      link.type =
-        "button";
-
-
-      link.className =
-        "link-ideia-pessoa";
-
-
-      link.textContent =
-        ideiasPessoa[l].titulo;
-
-
-      link.onclick =
-        (function (
-          idIdeia
-        ) {
-
-          return function () {
-
-            abrirIdeia(
-              idIdeia
-            );
-
-          };
-
-        })(
-          ideiasPessoa[l].id
-        );
-
-
-      item.appendChild(
-        link
-      );
-
-
-      listaIdeias.appendChild(
-        item
-      );
-
-    }
-
-
-    blocoIdeias.appendChild(
-      listaIdeias
-    );
-
-  }
-
-
-  alvo.appendChild(
-    blocoIdeias
-  );
-
-}
-
-
-/* ============================================================
-   PUBLICAR IDEIA — V-03
-============================================================ */
-
-function abrirPublicacao() {
-
-  estado.pagina =
-    "publicar";
-
-  mostrarPaginaAtual();
-
-
-  document.getElementById(
-    "novo-titulo"
-  ).focus();
-
-}
-
-
-function publicarIdeia() {
-
-  var titulo =
-    document.getElementById(
-      "novo-titulo"
-    ).value.trim();
-
-
-  var resumo =
-    document.getElementById(
-      "novo-resumo"
-    ).value.trim();
-
-
-  var tagsTexto =
-    document.getElementById(
-      "novas-tags"
-    ).value.trim();
-
-
-  var erro =
-    document.getElementById(
-      "erro-publicacao"
-    );
-
-
-  /*
-    V-03:
-    título vazio impede envio.
-  */
-
-  if (
-    titulo === ""
-  ) {
-
-    erro.textContent =
-      "Digite um título para publicar a ideia.";
-
-    document.getElementById(
-      "novo-titulo"
-    ).focus();
-
-    return false;
-
-  }
-
-
-  erro.textContent =
-    "";
-
-
-  /*
-    Tags.
-  */
-
-  var tags = [];
-
-
-  if (
-    tagsTexto !== ""
-  ) {
-
-    var separadas =
-      tagsTexto.split(",");
-
-
-    for (
-      var i = 0;
-      i < separadas.length;
-      i++
-    ) {
-
-      var tag =
-        separadas[i].trim();
-
-
-      if (
-        tag !== "" &&
-        tags.indexOf(tag) === -1
-      ) {
-
-        tags.push(tag);
-
-      }
-
-    }
-
-  }
-
-
-  /*
-    Gera um ID novo.
-  */
-
-  var maiorId = 0;
-
-
-  for (
-    var j = 0;
-    j < DADOS.ideias.length;
-    j++
-  ) {
-
-    var idAtual =
-      Number(
-        DADOS.ideias[j].id
-      );
-
-
-    if (
-      idAtual > maiorId
-    ) {
-
-      maiorId =
-        idAtual;
-
-    }
-
-  }
-
-
-  var novoId =
-    maiorId + 1;
-
-
-  /*
-    Data atual.
-  */
-
-  var hoje =
-    new Date();
-
-
-  var dataHoje =
-    hoje.toLocaleDateString(
-      "pt-BR"
-    );
-
-
-  /*
-    Cria a ideia usando
-    a mesma estrutura usada
-    pelas ideias do DADOS.
-  */
-
-  var novaIdeia = {
-
-    id: novoId,
-
-    autor:
-      Number(
-        estado.pessoa
-      ),
-
-    titulo:
-      titulo,
-
-    resumo:
-      resumo,
-
-    tags:
-      tags,
-
-    data:
-      dataHoje,
-
-    apoios:
-      0
-
-  };
-
-
-  /*
-    Coloca a ideia no início
-    do array.
-  */
-
-  DADOS.ideias.unshift(
-    novaIdeia
-  );
-
-
-  /*
-    Limpa formulário.
-  */
-
-  document.getElementById(
-    "form-publicar"
-  ).reset();
-
-
-  /*
-    Volta para o mural
-    sem recarregar.
-  */
-
-  estado.busca = "";
-
-  estado.tag = null;
-
-  estado.aba = "mural";
-
-  estado.pagina = "mural";
-
-
-  document.getElementById(
-    "busca"
-  ).value = "";
-
-
-  desenhar();
-
-
-  return false;
-
-}
-
-
-/* ============================================================
-   ARQUIVO — V-10
-============================================================ */
-
-function desenharArquivo() {
-
-  var alvo =
-    document.getElementById(
-      "lista-arquivo"
-    );
-
-
-  alvo.innerHTML = "";
-
-
-  var arquivadas =
-    lerArquivadas();
-
-
-  var minhasIdeias = [];
-
-
-  for (
-    var i = 0;
-    i < DADOS.ideias.length;
-    i++
-  ) {
-
-    var ideia =
-      DADOS.ideias[i];
-
-
-    if (
-      Number(ideia.autor) ===
-      Number(estado.pessoa)
-    ) {
-
-      if (
-        arquivadas.indexOf(
-          Number(ideia.id)
-        ) !== -1
-      ) {
-
-        minhasIdeias.push(
-          ideia
-        );
-
-      }
-
-    }
-
-  }
-
-
-  if (
-    minhasIdeias.length === 0
-  ) {
-
-    var vazio =
-      document.createElement(
-        "p"
-      );
-
-
-    vazio.className =
-      "mensagem-vazia";
-
-
-    vazio.textContent =
-      "você ainda não possui ideias arquivadas.";
-
-
-    alvo.appendChild(
-      vazio
-    );
-
-
-    return;
-
-  }
-
-
-  for (
-    var j = 0;
-    j < minhasIdeias.length;
-    j++
-  ) {
-
-    alvo.appendChild(
-      montarCartaoArquivo(
-        minhasIdeias[j]
-      )
-    );
-
-  }
-
-}
-
-
-function montarCartaoArquivo(
-  ideia
-) {
-
-  var cartao =
-    document.createElement(
-      "div"
-    );
-
-
-  cartao.className =
-    "cartao cartao-arquivado";
-
-
-  var titulo =
-    document.createElement(
-      "h3"
-    );
-
-
-  var link =
-    document.createElement(
-      "button"
-    );
-
-
-  link.type =
-    "button";
-
-
-  link.className =
-    "link-titulo";
-
-
-  link.textContent =
-    ideia.titulo;
-
-
-  link.onclick =
-    function () {
-
-      abrirIdeia(
-        ideia.id
-      );
-
-    };
-
-
-  titulo.appendChild(
-    link
-  );
-
-
-  cartao.appendChild(
-    titulo
-  );
-
-
-  var texto =
-    document.createElement(
-      "p"
-    );
-
-
-  texto.className =
-    "resumo";
-
-
-  texto.textContent =
-    ideia.resumo || "";
-
-
-  cartao.appendChild(
-    texto
-  );
-
-
-  var aviso =
-    document.createElement(
-      "p"
-    );
-
-
-  aviso.className =
-    "aviso-privado";
-
-
-  aviso.textContent =
-    "🔒 ideia arquivada — visível somente para você";
-
-
-  cartao.appendChild(
-    aviso
-  );
-
-
-  var desarquivar =
-    document.createElement(
-      "button"
-    );
-
-
-  desarquivar.type =
-    "button";
-
-
-  desarquivar.className =
-    "botao-arquivar";
-
-
-  desarquivar.textContent =
-    "desarquivar";
-
-
-  desarquivar.onclick =
-    function () {
-
-      desarquivarIdeia(
-        ideia.id
-      );
-
-    };
-
-
-  cartao.appendChild(
-    desarquivar
-  );
-
-
-  return cartao;
-
-}
-
-
-/* ============================================================
-   NOTIFICAÇÕES
-============================================================ */
-
-function desenharNotificacoes() {
-
-  var alvo =
-    document.getElementById(
-      "lista-notificacoes"
-    );
-
-
-  alvo.innerHTML = "";
-
-
-  var todas =
-    lerNotificacoes();
-
-
-  /*
-    Mostra somente notificações
-    destinadas à pessoa atual.
-  */
-
-  var minhas = [];
-
-
-  for (
-    var i = 0;
-    i < todas.length;
-    i++
-  ) {
-
-    if (
-      Number(
-        todas[i].autor
-      ) ===
-      Number(
-        estado.pessoa
-      )
-    ) {
-
-      minhas.push(
-        todas[i]
-      );
-
-    }
-
-  }
-
-
-  if (
-    minhas.length === 0
-  ) {
-
-    var vazio =
-      document.createElement(
-        "p"
-      );
-
-
-    vazio.className =
-      "mensagem-vazia";
-
-
-    vazio.textContent =
-      "você não possui novas notificações.";
-
-
-    alvo.appendChild(
-      vazio
-    );
-
-
-    return;
-
-  }
-
-
-  for (
-    var j = 0;
-    j < minhas.length;
-    j++
-  ) {
-
-    alvo.appendChild(
-      montarNotificacao(
-        minhas[j]
-      )
-    );
-
-  }
-
-}
-
-
-function montarNotificacao(
-  notificacao
-) {
-
-  var ideia =
-    ideiaPorId(
-      notificacao.ideia
-    );
-
-
-  var cartao =
-    document.createElement(
-      "button"
-    );
-
-
-  cartao.type =
-    "button";
-
-
-  cartao.className =
-    notificacao.lida
-      ? "notificacao lida"
-      : "notificacao nova";
-
-
-  if (!ideia) {
-
-    cartao.textContent =
-      "Uma pessoa demonstrou interesse em uma ideia.";
-
-    return cartao;
-
-  }
-
-
-  var interessado =
-    nomeCompletoDe(
-      notificacao.interessado
-    );
-
-
-  /*
-    A notificação mostra:
-    nome de quem se interessou
-    + título da ideia.
-  */
-
-  var texto =
-    document.createElement(
-      "span"
-    );
-
-
-  texto.className =
-    "texto-notificacao";
-
-
-  texto.innerHTML =
-    "<strong>" +
-    escaparHTML(interessado) +
-    "</strong>" +
-    " demonstrou interesse na sua ideia " +
-    "<strong>\"" +
-    escaparHTML(ideia.titulo) +
-    "\"</strong>";
-
-
-  cartao.appendChild(
-    texto
-  );
-
-
-  var data =
-    document.createElement(
-      "small"
-    );
-
-
-  data.textContent =
-    notificacao.data;
-
-
-  cartao.appendChild(
-    data
-  );
-
-
-  cartao.onclick =
-    function () {
-
-      marcarNotificacaoComoLida(
-        notificacao.id
-      );
-
-      abrirIdeia(
-        ideia.id
-      );
-
-    };
-
-
-  return cartao;
-
-}
-
-
-/* ============================================================
-   SEGURANÇA DO TEXTO
-============================================================ */
-
-function escaparHTML(
-  texto
-) {
-
-  var div =
-    document.createElement(
-      "div"
-    );
-
-
-  div.textContent =
-    String(texto);
-
-
-  return div.innerHTML;
-
-}
-
-
-/* ============================================================
-   CONTADOR DE NOTIFICAÇÕES
-============================================================ */
-
-function atualizarContadorNotificacoes() {
-
-  var notificacoes =
-    lerNotificacoes();
-
-
-  var quantidade = 0;
-
-
-  for (
-    var i = 0;
-    i < notificacoes.length;
-    i++
-  ) {
-
-    if (
-      Number(
-        notificacoes[i].autor
-      ) ===
-      Number(
-        estado.pessoa
-      ) &&
-      !notificacoes[i].lida
-    ) {
-
-      quantidade++;
-
-    }
-
-  }
-
-
-  var contador =
-    document.getElementById(
-      "contador-notificacoes"
-    );
-
-
-  contador.textContent =
-    quantidade;
-
-
-  if (
-    quantidade === 0
-  ) {
-
-    contador.classList.add(
-      "sem-notificacao"
-    );
-
-  } else {
-
-    contador.classList.remove(
-      "sem-notificacao"
-    );
-
-  }
-
-}
-
-
-/* ============================================================
-   MARCAR NOTIFICAÇÃO COMO LIDA
-============================================================ */
-
-function marcarNotificacaoComoLida(
-  id
-) {
-
-  var lista =
-    lerNotificacoes();
-
-
-  for (
-    var i = 0;
-    i < lista.length;
-    i++
-  ) {
-
-    if (
-      Number(
-        lista[i].id
-      ) ===
-      Number(id)
-    ) {
-
-      lista[i].lida =
-        true;
-
-    }
-
-  }
-
-
-  salvarNotificacoes(
-    lista
-  );
-
-
-  atualizarContadorNotificacoes();
-
-}
-
-
-function marcarTodasComoLidas() {
-
-  var lista =
-    lerNotificacoes();
-
-
-  for (
-    var i = 0;
-    i < lista.length;
-    i++
-  ) {
-
-    if (
-      Number(
-        lista[i].autor
-      ) ===
-      Number(
-        estado.pessoa
-      )
-    ) {
-
-      lista[i].lida =
-        true;
-
-    }
-
-  }
-
-
-  salvarNotificacoes(
-    lista
-  );
-
-
-  desenharNotificacoes();
-
-  atualizarContadorNotificacoes();
-
-}
-
-
-/* ============================================================
-   ABAS
-============================================================ */
-
-function trocarAba(
-  qual
-) {
-
-  estado.aba =
-    qual;
-
-  estado.pagina =
-    qual;
-
-  mostrarPaginaAtual();
-
-}
-
-
-/* ============================================================
-   CONTROLE DAS PÁGINAS
-============================================================ */
-
-function esconderTodasAsPaginas() {
-
-  var paginas = [
-
-    "mural",
-    "grupos",
-    "arquivo",
-    "notificacoes",
-    "pagina-pessoa",
-    "pagina-ideia",
-    "pagina-publicar"
-
-  ];
-
-
-  for (
-    var i = 0;
-    i < paginas.length;
-    i++
-  ) {
-
-    document
-      .getElementById(
-        paginas[i]
-      )
-      .classList.add(
-        "escondido"
-      );
-
-  }
-
-}
-
-
-function mostrarPaginaAtual() {
-
-  esconderTodasAsPaginas();
-
-
-  /*
-    Páginas internas.
-  */
-
-  if (
-    estado.pagina ===
-    "pessoa"
-  ) {
-
-    document
-      .getElementById(
-        "pagina-pessoa"
-      )
-      .classList.remove(
-        "escondido"
-      );
-
-    desenharPessoa();
-
-    atualizarAbas();
-
-    return;
-
-  }
-
-
-  if (
-    estado.pagina ===
-    "ideia"
-  ) {
-
-    document
-      .getElementById(
-        "pagina-ideia"
-      )
-      .classList.remove(
-        "escondido"
-      );
-
-    desenharIdeia();
-
-    atualizarAbas();
-
-    return;
-
-  }
-
-
-  if (
-    estado.pagina ===
-    "publicar"
-  ) {
-
-    document
-      .getElementById(
-        "pagina-publicar"
-      )
-      .classList.remove(
-        "escondido"
-      );
-
-    atualizarAbas();
-
-    return;
-
-  }
-
-
-  /*
-    Abas principais.
-  */
-
-  if (
-    estado.pagina ===
-    "grupos"
-  ) {
-
-    document
-      .getElementById(
-        "grupos"
-      )
-      .classList.remove(
-        "escondido"
-      );
-
-  } else if (
-    estado.pagina ===
-    "arquivo"
-  ) {
-
-    document
-      .getElementById(
-        "arquivo"
-      )
-      .classList.remove(
-        "escondido"
-      );
-
-  } else if (
-    estado.pagina ===
-    "notificacoes"
-  ) {
-
-    document
-      .getElementById(
-        "notificacoes"
-      )
-      .classList.remove(
-        "escondido"
-      );
-
-  } else {
-
-    document
-      .getElementById(
-        "mural"
-      )
-      .classList.remove(
-        "escondido"
-      );
-
-  }
-
-
-  atualizarAbas();
-
-}
-
-
-function atualizarAbas() {
-
-  var abas = [
-
-    {
-      id: "aba-mural",
-      pagina: "mural"
-    },
-
-    {
-      id: "aba-grupos",
-      pagina: "grupos"
-    },
-
-    {
-      id: "aba-arquivo",
-      pagina: "arquivo"
-    },
-
-    {
-      id: "aba-notificacoes",
-      pagina: "notificacoes"
-    }
-
-  ];
-
-
-  for (
-    var i = 0;
-    i < abas.length;
-    i++
-  ) {
-
-    var elemento =
-      document.getElementById(
-        abas[i].id
-      );
-
-
-    if (
-      estado.pagina ===
-      abas[i].pagina
-    ) {
-
-      elemento.className =
-        "aba ativa";
-
-    } else {
-
-      elemento.className =
-        "aba";
-
-    }
-
-  }
-
-}
-
-
-/* ============================================================
-   GRUPOS
-============================================================ */
+/* ================================================================
+GRUPOS
+================================================================ */
 
 function desenharGrupos() {
 
-  var alvo =
-    document.getElementById(
-      "lista-grupos"
-    );
+var alvo =
+document.getElementById("lista-grupos");
+
+alvo.innerHTML = "";
+
+for (
+var i = 0;
+i < DADOS.grupos.length;
+i++
+) {
+
+```
+var g =
+  DADOS.grupos[i];
+
+var item =
+  document.createElement("li");
 
 
-  alvo.innerHTML = "";
+var nome =
+  document.createElement("span");
+
+nome.className = "nome";
+
+nome.textContent =
+  g.nome;
+
+item.appendChild(nome);
 
 
-  for (
-    var i = 0;
-    i < DADOS.grupos.length;
-    i++
-  ) {
+var quantos =
+  document.createElement("span");
 
-    var grupo =
-      DADOS.grupos[i];
+quantos.className =
+  "quantos";
 
+quantos.textContent =
+  (g.membros || []).length +
+  " membros";
 
-    var item =
-      document.createElement(
-        "li"
-      );
+item.appendChild(quantos);
 
 
-    var quantidade =
-      document.createElement(
-        "span"
-      );
+var descricao =
+  document.createElement("p");
+
+descricao.className =
+  "descricao";
+
+descricao.textContent =
+  g.descricao || "";
+
+item.appendChild(descricao);
 
 
-    quantidade.className =
-      "quantos";
+alvo.appendChild(item);
+```
 
+}
 
-    quantidade.textContent =
-      (
-        grupo.membros || []
-      ).length +
-      " membros";
+}
 
+/* ================================================================
+V-01 — PÁGINA DA PESSOA
+================================================================ */
 
-    item.appendChild(
-      quantidade
-    );
+function abrirPessoa(id) {
 
+estado.pessoaPagina = id;
 
-    var nome =
-      document.createElement(
-        "span"
-      );
+esconderTodasAsPaginas();
 
+document
+.getElementById("pessoa")
+.classList.remove("escondido");
 
-    nome.className =
-      "nome";
+var alvo =
+document.getElementById("pagina-pessoa");
 
+alvo.innerHTML = "";
 
-    nome.textContent =
-      grupo.nome;
+var pessoa =
+pessoaPorId(id);
 
+if (!pessoa) {
 
-    item.appendChild(
-      nome
-    );
+```
+alvo.textContent =
+  "Pessoa não encontrada.";
 
+return;
+```
 
-    var descricao =
-      document.createElement(
-        "p"
-      );
+}
 
+var titulo =
+document.createElement("h2");
 
-    descricao.className =
-      "descricao";
+titulo.textContent =
+pessoa.nome;
 
+alvo.appendChild(titulo);
 
-    descricao.textContent =
-      grupo.descricao || "";
+var tipo =
+document.createElement("p");
 
+tipo.className =
+"informacao-pessoa";
 
-    item.appendChild(
-      descricao
-    );
+tipo.textContent =
+"é " +
+(pessoa.tipo ||
+pessoa.papel ||
+"aluno");
 
+alvo.appendChild(tipo);
 
-    alvo.appendChild(
-      item
+if (pessoa.curso) {
+
+```
+var curso =
+  document.createElement("p");
+
+curso.textContent =
+  "Curso: " +
+  pessoa.curso;
+
+alvo.appendChild(curso);
+```
+
+}
+
+if (pessoa.interesses) {
+
+```
+var interesses =
+  document.createElement("p");
+
+interesses.innerHTML =
+  "<strong>Interesses:</strong> " +
+  pessoa.interesses;
+
+alvo.appendChild(interesses);
+```
+
+}
+
+if (pessoa.mudancas) {
+
+```
+var mudancas =
+  document.createElement("p");
+
+mudancas.innerHTML =
+  "<strong>Mudanças:</strong> " +
+  pessoa.mudancas;
+
+alvo.appendChild(mudancas);
+```
+
+}
+
+if (pessoa.nomeCompleto) {
+
+```
+var nomeCompleto =
+  document.createElement("p");
+
+nomeCompleto.innerHTML =
+  "<strong>Nome:</strong> " +
+  pessoa.nomeCompleto;
+
+alvo.appendChild(nomeCompleto);
+```
+
+}
+
+var tituloIdeias =
+document.createElement("h3");
+
+tituloIdeias.textContent =
+"Ideias publicadas";
+
+alvo.appendChild(tituloIdeias);
+
+var ideiasPessoa =
+DADOS.ideias.filter(
+function (ideia) {
+
+```
+    return (
+      ideia.autor === id &&
+      ideia.arquivada !== true
     );
 
   }
+);
+```
 
+if (ideiasPessoa.length === 0) {
+
+```
+var vazio =
+  document.createElement("p");
+
+vazio.className =
+  "mensagem-vazia";
+
+vazio.textContent =
+  "ainda não publicou ideias";
+
+alvo.appendChild(vazio);
+```
+
+} else {
+
+```
+var lista =
+  document.createElement("div");
+
+lista.className =
+  "lista-ideias-pessoa";
+
+
+for (
+  var i = 0;
+  i < ideiasPessoa.length;
+  i++
+) {
+
+  var link =
+    document.createElement("button");
+
+  link.className =
+    "ideia-link";
+
+  link.textContent =
+    ideiasPessoa[i].titulo;
+
+  link.onclick =
+    criarCliqueDeIdeia(
+      ideiasPessoa[i].id
+    );
+
+  lista.appendChild(link);
+
+}
+
+alvo.appendChild(lista);
+```
+
+}
+
+}
+
+function criarCliqueDeIdeia(id) {
+
+return function () {
+
+```
+abrirIdeia(id);
+```
+
+};
+
+}
+
+/* ================================================================
+PÁGINA DA IDEIA
+================================================================ */
+
+function abrirIdeia(id) {
+
+estado.ideiaPagina = id;
+
+esconderTodasAsPaginas();
+
+document
+.getElementById("ideia")
+.classList.remove("escondido");
+
+var alvo =
+document.getElementById("pagina-ideia");
+
+alvo.innerHTML = "";
+
+var ideia =
+ideiaPorId(id);
+
+if (!ideia) {
+
+```
+alvo.textContent =
+  "Ideia não encontrada.";
+
+return;
+```
+
+}
+
+var titulo =
+document.createElement("h2");
+
+titulo.textContent =
+ideia.titulo;
+
+alvo.appendChild(titulo);
+
+var autoria =
+document.createElement("p");
+
+autoria.innerHTML =
+"<strong>Publicado por:</strong> ";
+
+var autor =
+document.createElement("button");
+
+autor.className =
+"link-autor";
+
+autor.textContent =
+nomeDe(ideia.autor);
+
+autor.onclick = function () {
+
+```
+abrirPessoa(ideia.autor);
+```
+
+};
+
+autoria.appendChild(autor);
+
+alvo.appendChild(autoria);
+
+var resumo =
+document.createElement("p");
+
+resumo.className =
+"resumo-ideia";
+
+resumo.textContent =
+ideia.resumo;
+
+alvo.appendChild(resumo);
+
+var tags =
+document.createElement("div");
+
+tags.className =
+"tags";
+
+var listaTags =
+tagsDaIdeia(ideia);
+
+for (
+var i = 0;
+i < listaTags.length;
+i++
+) {
+
+```
+var tag =
+  document.createElement("span");
+
+tag.className =
+  "etiqueta";
+
+tag.textContent =
+  listaTags[i];
+
+tags.appendChild(tag);
+```
+
+}
+
+alvo.appendChild(tags);
+
+var info =
+document.createElement("p");
+
+info.className =
+"apoios-grande";
+
+info.textContent =
+(ideia.interessados || []).length +
+" interessados";
+
+alvo.appendChild(info);
+
+var botao =
+document.createElement("button");
+
+botao.className =
+"apoiar";
+
+var jaInteressado =
+(ideia.interessados || [])
+.indexOf(estado.pessoa) !== -1;
+
+botao.textContent =
+jaInteressado
+? "retirar interesse"
+: "mostrar interesse";
+
+botao.onclick =
+criarCliqueDeApoio(ideia.id);
+
+alvo.appendChild(botao);
+
+}
+
+/* ================================================================
+V-03 — PUBLICAR IDEIA
+================================================================ */
+
+function publicarIdeia(e) {
+
+e.preventDefault();
+
+var titulo =
+document
+.getElementById("titulo-ideia")
+.value
+.trim();
+
+var resumo =
+document
+.getElementById("resumo-ideia")
+.value
+.trim();
+
+var tagsTexto =
+document
+.getElementById("tags-ideia")
+.value
+.trim();
+
+var erro =
+document.getElementById(
+"erro-publicacao"
+);
+
+if (titulo === "") {
+
+```
+erro.textContent =
+  "Digite um título para publicar a ideia.";
+
+document
+  .getElementById("titulo-ideia")
+  .focus();
+
+return;
+```
+
+}
+
+if (resumo === "") {
+
+```
+erro.textContent =
+  "Digite um resumo para publicar a ideia.";
+
+document
+  .getElementById("resumo-ideia")
+  .focus();
+
+return;
+```
+
+}
+
+var tags = [];
+
+if (tagsTexto !== "") {
+
+```
+tags =
+  tagsTexto
+    .split(",")
+    .map(function (tag) {
+      return tag.trim();
+    })
+    .filter(function (tag) {
+      return tag !== "";
+    });
+```
+
+}
+
+/*
+
+* Cria um ID único.
+  */
+
+var novoId =
+Date.now();
+
+var novaIdeia = {
+
+```
+id: novoId,
+
+titulo: titulo,
+
+resumo: resumo,
+
+tags: tags,
+
+autor: estado.pessoa,
+
+data: dataHoje(),
+
+apoios: 0,
+
+interessados: [],
+
+arquivada: false
+```
+
+};
+
+/*
+
+* unshift coloca a ideia no começo
+* do array.
+  */
+
+DADOS.ideias.unshift(
+novaIdeia
+);
+
+/*
+
+* Limpa o formulário.
+  */
+
+document
+.getElementById("form-publicar")
+.reset();
+
+erro.textContent =
+"Ideia publicada com sucesso!";
+
+/*
+
+* Volta para o mural imediatamente.
+  */
+
+trocarAba("mural");
+
+estado.busca = "";
+estado.tag = null;
+
+desenhar();
+
+}
+
+/* ================================================================
+V-10 — ARQUIVAR
+================================================================ */
+
+function arquivarIdeia(id) {
+
+var ideia =
+ideiaPorId(id);
+
+if (!ideia) return;
+
+if (ideia.autor !== estado.pessoa) {
+
+```
+return;
+```
+
+}
+
+ideia.arquivada = true;
+
+trocarAba("arquivadas");
+
+desenhar();
+
+}
+
+/* ================================================================
+DESARQUIVAR
+================================================================ */
+
+function desarquivarIdeia(id) {
+
+var ideia =
+ideiaPorId(id);
+
+if (!ideia) return;
+
+if (ideia.autor !== estado.pessoa) {
+
+```
+return;
+```
+
+}
+
+ideia.arquivada = false;
+
+desenhar();
+
+}
+
+/* ================================================================
+ARQUIVADAS
+================================================================ */
+
+function desenharArquivadas() {
+
+var alvo =
+document.getElementById(
+"lista-arquivadas"
+);
+
+alvo.innerHTML = "";
+
+var minhas =
+DADOS.ideias.filter(
+function (ideia) {
+
+```
+    return (
+      ideia.autor === estado.pessoa &&
+      ideia.arquivada === true
+    );
+
+  }
+);
+```
+
+var vazio =
+document.getElementById(
+"sem-arquivadas"
+);
+
+if (minhas.length === 0) {
+
+```
+vazio.classList.remove(
+  "escondido"
+);
+```
+
+} else {
+
+```
+vazio.classList.add(
+  "escondido"
+);
+```
+
+}
+
+for (
+var i = 0;
+i < minhas.length;
+i++
+) {
+
+```
+alvo.appendChild(
+  montarCartaoArquivado(
+    minhas[i]
+  )
+);
+```
+
+}
+
+}
+
+function montarCartaoArquivado(ideia) {
+
+var cartao =
+document.createElement("div");
+
+cartao.className =
+"cartao arquivado";
+
+var titulo =
+document.createElement("h3");
+
+titulo.textContent =
+ideia.titulo;
+
+cartao.appendChild(titulo);
+
+var resumo =
+document.createElement("p");
+
+resumo.className =
+"resumo";
+
+resumo.textContent =
+ideia.resumo;
+
+cartao.appendChild(resumo);
+
+var botao =
+document.createElement("button");
+
+botao.className =
+"botao-principal";
+
+botao.textContent =
+"desarquivar";
+
+botao.onclick =
+function () {
+
+```
+  desarquivarIdeia(
+    ideia.id
+  );
+
+};
+```
+
+cartao.appendChild(botao);
+
+return cartao;
+
+}
+
+/* ================================================================
+V-09 — NOTIFICAÇÕES
+================================================================ */
+
+function desenharNotificacoes() {
+
+var alvo =
+document.getElementById(
+"lista-notificacoes"
+);
+
+alvo.innerHTML = "";
+
+var minhas =
+DADOS.notificacoes.filter(
+function (n) {
+
+```
+    return n.autor === estado.pessoa;
+
+  }
+);
+```
+
+var vazio =
+document.getElementById(
+"sem-notificacoes"
+);
+
+if (minhas.length === 0) {
+
+```
+vazio.classList.remove(
+  "escondido"
+);
+```
+
+} else {
+
+```
+vazio.classList.add(
+  "escondido"
+);
+```
+
+}
+
+for (
+var i = minhas.length - 1;
+i >= 0;
+i--
+) {
+
+```
+var n =
+  minhas[i];
+
+var item =
+  document.createElement("div");
+
+item.className =
+  "notificacao";
+
+
+var texto =
+  document.createElement("p");
+
+texto.innerHTML =
+  "<strong>" +
+  nomeDe(n.pessoa) +
+  "</strong> demonstrou interesse na ideia " +
+  "<strong>" +
+  n.titulo +
+  "</strong>.";
+
+item.appendChild(texto);
+
+
+var data =
+  document.createElement("small");
+
+data.textContent =
+  n.data;
+
+item.appendChild(data);
+
+
+var abrir =
+  document.createElement("button");
+
+abrir.className =
+  "botao-secundario";
+
+abrir.textContent =
+  "abrir ideia";
+
+abrir.onclick =
+  function (idIdeia) {
+
+    return function () {
+
+      abrirIdeia(idIdeia);
+
+    };
+
+  }(n.ideia);
+
+
+item.appendChild(abrir);
+
+
+alvo.appendChild(item);
+```
+
+}
+
+}
+
+function atualizarContadorNotificacoes() {
+
+var contador =
+document.getElementById(
+"contador-notificacoes"
+);
+
+var quantidade =
+DADOS.notificacoes.filter(
+function (n) {
+
+```
+    return (
+      n.autor === estado.pessoa &&
+      n.lida !== true
+    );
+
+  }
+).length;
+```
+
+if (quantidade > 0) {
+
+```
+contador.textContent =
+  "(" + quantidade + ")";
+```
+
+} else {
+
+```
+contador.textContent =
+  "";
+```
+
+}
+
+}
+
+/* ================================================================
+ABAS
+================================================================ */
+
+function trocarAba(qual) {
+
+estado.aba = qual;
+
+esconderTodasAsPaginas();
+
+if (qual === "mural") {
+
+```
+document
+  .getElementById("mural")
+  .classList.remove(
+    "escondido"
+  );
+```
+
+}
+
+if (qual === "grupos") {
+
+```
+document
+  .getElementById("grupos")
+  .classList.remove(
+    "escondido"
+  );
+```
+
+}
+
+if (qual === "publicar") {
+
+```
+document
+  .getElementById("publicar")
+  .classList.remove(
+    "escondido"
+  );
+```
+
+}
+
+if (qual === "arquivadas") {
+
+```
+document
+  .getElementById("arquivadas")
+  .classList.remove(
+    "escondido"
+  );
+
+desenharArquivadas();
+```
+
+}
+
+if (qual === "notificacoes") {
+
+```
+document
+  .getElementById("notificacoes")
+  .classList.remove(
+    "escondido"
+  );
+
+/*
+ * Ao abrir a área de notificações,
+ * consideramos as notificações visualizadas.
+ */
+
+for (
+  var i = 0;
+  i < DADOS.notificacoes.length;
+  i++
+) {
 
   if (
-    DADOS.grupos.length === 0
+    DADOS.notificacoes[i].autor ===
+    estado.pessoa
   ) {
 
-    var vazio =
-      document.createElement(
-        "p"
-      );
-
-
-    vazio.className =
-      "mensagem-vazia";
-
-
-    vazio.textContent =
-      "nenhum grupo cadastrado.";
-
-
-    alvo.appendChild(
-      vazio
-    );
+    DADOS.notificacoes[i].lida =
+      true;
 
   }
 
 }
 
+atualizarContadorNotificacoes();
+```
 
-/* ============================================================
-   INÍCIO
-============================================================ */
+}
+
+var abas = [
+"aba-mural",
+"aba-grupos",
+"aba-publicar",
+"aba-arquivadas",
+"aba-notificacoes"
+];
+
+for (
+var i = 0;
+i < abas.length;
+i++
+) {
+
+```
+var elemento =
+  document.getElementById(
+    abas[i]
+  );
+
+if (!elemento) continue;
+
+
+elemento.className =
+  "aba";
+
+
+if (
+  (qual === "mural" &&
+    abas[i] === "aba-mural") ||
+
+  (qual === "grupos" &&
+    abas[i] === "aba-grupos") ||
+
+  (qual === "publicar" &&
+    abas[i] === "aba-publicar") ||
+
+  (qual === "arquivadas" &&
+    abas[i] === "aba-arquivadas") ||
+
+  (qual === "notificacoes" &&
+    abas[i] === "aba-notificacoes")
+) {
+
+  elemento.className =
+    "aba ativa";
+
+}
+```
+
+}
+
+}
+
+/* ================================================================
+ESCONDER PÁGINAS
+================================================================ */
+
+function esconderTodasAsPaginas() {
+
+var paginas = [
+"mural",
+"grupos",
+"publicar",
+"arquivadas",
+"notificacoes",
+"pessoa",
+"ideia"
+];
+
+for (
+var i = 0;
+i < paginas.length;
+i++
+) {
+
+```
+var elemento =
+  document.getElementById(
+    paginas[i]
+  );
+
+if (elemento) {
+
+  elemento.classList.add(
+    "escondido"
+  );
+
+}
+```
+
+}
+
+}
+
+/* ================================================================
+INÍCIO
+================================================================ */
 
 function iniciar() {
 
-  /*
-    Primeira pessoa do dados_K.
-  */
-
-  if (
-    DADOS.pessoas.length > 0
-  ) {
-
-    estado.pessoa =
-      DADOS.pessoas[0].id;
-
-  }
-
-
-  /*
-    Busca rápida.
-  */
-
-  document
-    .getElementById(
-      "busca"
-    )
-    .oninput =
-    function (e) {
-
-      estado.busca =
-        e.target.value;
-
-      desenharMural();
-
-    };
-
-
-  /*
-    Trocar pessoa.
-  */
-
-  document
-    .getElementById(
-      "quem"
-    )
-    .onchange =
-    function (e) {
-
-      estado.pessoa =
-        Number(
-          e.target.value
-        );
-
-
-      /*
-        Ao trocar de pessoa,
-        volta para o mural.
-      */
-
-      estado.pagina =
-        "mural";
-
-      estado.aba =
-        "mural";
-
-      desenhar();
-
-    };
-
-
-  /*
-    Abas.
-  */
-
-  document
-    .getElementById(
-      "aba-mural"
-    )
-    .onclick =
-    function () {
-
-      trocarAba(
-        "mural"
-      );
-
-    };
-
-
-  document
-    .getElementById(
-      "aba-grupos"
-    )
-    .onclick =
-    function () {
-
-      trocarAba(
-        "grupos"
-      );
-
-    };
-
-
-  document
-    .getElementById(
-      "aba-arquivo"
-    )
-    .onclick =
-    function () {
-
-      trocarAba(
-        "arquivo"
-      );
-
-    };
-
-
-  document
-    .getElementById(
-      "aba-notificacoes"
-    )
-    .onclick =
-    function () {
-
-      trocarAba(
-        "notificacoes"
-      );
-
-    };
-
-
-  /*
-    Publicar.
-  */
-
-  document
-    .getElementById(
-      "botao-publicar"
-    )
-    .onclick =
-    function () {
-
-      abrirPublicacao();
-
-    };
-
-
-  document
-    .getElementById(
-      "form-publicar"
-    )
-    .onsubmit =
-    function (e) {
-
-      e.preventDefault();
-
-      publicarIdeia();
-
-    };
-
-
-  /*
-    Botões voltar.
-  */
-
-  document
-    .getElementById(
-      "voltar-pessoa"
-    )
-    .onclick =
-    function () {
-
-      estado.pagina =
-        "mural";
-
-      estado.aba =
-        "mural";
-
-      desenhar();
-
-    };
-
-
-  document
-    .getElementById(
-      "voltar-ideia"
-    )
-    .onclick =
-    function () {
-
-      estado.pagina =
-        "mural";
-
-      estado.aba =
-        "mural";
-
-      desenhar();
-
-    };
-
-
-  document
-    .getElementById(
-      "voltar-publicar"
-    )
-    .onclick =
-    function () {
-
-      estado.pagina =
-        "mural";
-
-      estado.aba =
-        "mural";
-
-      desenhar();
-
-    };
-
-
-  /*
-    Notificações.
-  */
-
-  document
-    .getElementById(
-      "marcar-notificacoes"
-    )
-    .onclick =
-    function () {
-
-      marcarTodasComoLidas();
-
-    };
-
-
-  /*
-    Primeiro desenho.
-  */
-
-  desenhar();
+prepararDados();
+
+if (
+DADOS.pessoas.length > 0
+) {
+
+```
+estado.pessoa =
+  DADOS.pessoas[0].id;
+```
 
 }
 
+/* busca */
+
+document
+.getElementById("busca")
+.oninput = function (e) {
+
+```
+  estado.busca =
+    e.target.value;
+
+  desenharMural();
+
+};
+```
+
+/* pessoa */
+
+document
+.getElementById("quem")
+.onchange = function (e) {
+
+```
+  estado.pessoa =
+    isNaN(Number(e.target.value))
+      ? e.target.value
+      : Number(e.target.value);
+
+  estado.tag = null;
+
+  desenhar();
+
+};
+```
+
+/* limpar filtros */
+
+document
+.getElementById(
+"limpar-filtros"
+)
+.onclick = function () {
+
+```
+  estado.busca = "";
+  estado.tag = null;
+
+  document
+    .getElementById("busca")
+    .value = "";
+
+  desenharMural();
+
+};
+```
+
+/* abas */
+
+document
+.getElementById("aba-mural")
+.onclick = function () {
+
+```
+  trocarAba("mural");
+
+};
+```
+
+document
+.getElementById("aba-grupos")
+.onclick = function () {
+
+```
+  trocarAba("grupos");
+
+};
+```
+
+document
+.getElementById("aba-publicar")
+.onclick = function () {
+
+```
+  trocarAba("publicar");
+
+};
+```
+
+document
+.getElementById("aba-arquivadas")
+.onclick = function () {
+
+```
+  trocarAba("arquivadas");
+
+};
+```
+
+document
+.getElementById("aba-notificacoes")
+.onclick = function () {
+
+```
+  trocarAba("notificacoes");
+
+};
+```
+
+/* formulário */
+
+document
+.getElementById("form-publicar")
+.addEventListener(
+"submit",
+publicarIdeia
+);
+
+/* voltar do perfil */
+
+document
+.getElementById("voltar-mural")
+.onclick = function () {
+
+```
+  trocarAba("mural");
+
+};
+```
+
+/* voltar da ideia */
+
+document
+.getElementById(
+"voltar-mural-ideia"
+)
+.onclick = function () {
+
+```
+  trocarAba("mural");
+
+};
+```
+
+desenhar();
+
+trocarAba("mural");
+
+}
 
 iniciar();
