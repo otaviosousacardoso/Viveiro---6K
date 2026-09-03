@@ -1,222 +1,139 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Viveiro — berçário de ideias</title>
-<link rel="stylesheet" href="src/estilo.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Viveiro — berçário de ideias</title>
+
+  <link rel="stylesheet" href="src/estilo.css">
 </head>
 
 <body>
 
 <header>
+
   <div class="marca">
     <h1>Viveiro</h1>
-    <span class="lema">onde as ideias crescem antes de virar projeto</span>
+    <span class="lema">
+      onde as ideias crescem antes de virar projeto
+    </span>
   </div>
 
   <div class="sessao">
     <label for="quem">navegando como</label>
     <select id="quem"></select>
   </div>
+
 </header>
 
+
 <nav class="abas">
-  <button id="aba-mural" class="aba ativa">Mural</button>
-  <button id="aba-grupos" class="aba">Grupos</button>
-  <button id="aba-publicar" class="aba">Publicar ideia</button>
-  <button id="aba-arquivadas" class="aba">Minhas arquivadas</button>
-  <button id="aba-notificacoes" class="aba">
-    Notificações <span id="contador-notificacoes"></span>
+
+  <button id="aba-mural" class="aba ativa">
+    Mural
   </button>
+
+  <button id="aba-grupos" class="aba">
+    Grupos
+  </button>
+
 </nav>
+
 
 <main>
 
-  <!-- ========================== MURAL ========================== -->
+  <!-- ================= MURAL ================= -->
 
   <section id="mural">
 
-```
-<div class="barra">
-  <input
-    id="busca"
-    type="search"
-    placeholder="buscar por título, resumo ou tag..."
-    autocomplete="off"
-  >
+    <div class="barra">
 
-  <span id="contagem" class="contagem"></span>
-</div>
+      <input
+        id="busca"
+        type="search"
+        placeholder="buscar por título ou resumo..."
+      >
 
-<div class="filtros">
-  <button id="limpar-filtros" class="botao-secundario">
-    limpar filtros
-  </button>
-</div>
+      <span id="contagem" class="contagem"></span>
 
-<p id="filtro-ativo" class="filtro-ativo"></p>
+    </div>
 
-<div id="cartoes" class="cartoes"></div>
 
-<p id="sem-ideias" class="mensagem-vazia escondido">
-  nenhuma ideia encontrada.
-</p>
-```
+    <p id="filtro-ativo" class="filtro-ativo"></p>
+
+
+    <div id="cartoes" class="cartoes"></div>
 
   </section>
 
-  <!-- ========================== GRUPOS ========================== -->
+
+  <!-- ================= GRUPOS ================= -->
 
   <section id="grupos" class="escondido">
 
-```
-<h2>Grupos</h2>
+    <h2>Grupos</h2>
 
-<ul id="lista-grupos" class="lista-grupos"></ul>
-```
+    <ul id="lista-grupos" class="lista-grupos"></ul>
 
   </section>
 
-  <!-- ========================== PUBLICAR ========================== -->
 
-  <section id="publicar" class="escondido">
+  <!-- ================= PÁGINA DA PESSOA ================= -->
 
-```
-<div class="pagina-formulario">
+  <section id="pagina-pessoa" class="escondido">
 
-  <h2>Publicar uma ideia</h2>
-
-  <p class="texto-ajuda">
-    Coloque sua ideia no Viveiro para que outras pessoas possam
-    conhecê-la e demonstrar interesse.
-  </p>
-
-  <form id="form-publicar">
-
-    <label for="titulo-ideia">Título</label>
-
-    <input
-      id="titulo-ideia"
-      type="text"
-      maxlength="120"
-      placeholder="Digite o título da ideia"
+    <button
+      id="voltar-pessoa"
+      class="voltar"
     >
-
-    <label for="resumo-ideia">Resumo</label>
-
-    <textarea
-      id="resumo-ideia"
-      maxlength="500"
-      placeholder="Explique sua ideia brevemente"
-    ></textarea>
-
-    <label for="tags-ideia">
-      Tags
-    </label>
-
-    <input
-      id="tags-ideia"
-      type="text"
-      placeholder="ex.: tecnologia, educação, jogos"
-    >
-
-    <p id="erro-publicacao" class="erro"></p>
-
-    <button type="submit" class="botao-principal">
-      publicar ideia
+      ← voltar para o mural
     </button>
 
-  </form>
-
-</div>
-```
+    <div id="conteudo-pessoa"></div>
 
   </section>
 
-  <!-- ======================= ARQUIVADAS ======================= -->
 
-  <section id="arquivadas" class="escondido">
+  <!-- ================= PÁGINA DA IDEIA ================= -->
 
-```
-<div class="cabecalho-pagina">
-  <h2>Minhas ideias arquivadas</h2>
+  <section id="pagina-ideia" class="escondido">
 
-  <p>
-    Essas ideias ficam visíveis somente para você.
-  </p>
-</div>
+    <button
+      id="voltar-ideia"
+      class="voltar"
+    >
+      ← voltar para o mural
+    </button>
 
-<div id="lista-arquivadas" class="cartoes"></div>
-
-<p id="sem-arquivadas" class="mensagem-vazia escondido">
-  você ainda não possui ideias arquivadas.
-</p>
-```
-
-  </section>
-
-  <!-- ====================== NOTIFICAÇÕES ====================== -->
-
-  <section id="notificacoes" class="escondido">
-
-```
-<div class="cabecalho-pagina">
-  <h2>Notificações</h2>
-
-  <p>
-    Aqui aparecem avisos quando alguém demonstra interesse
-    em uma das suas ideias.
-  </p>
-</div>
-
-<div id="lista-notificacoes" class="lista-notificacoes"></div>
-
-<p id="sem-notificacoes" class="mensagem-vazia escondido">
-  nenhuma notificação nova.
-</p>
-```
-
-  </section>
-
-  <!-- ======================== PESSOA ======================== -->
-
-  <section id="pessoa" class="escondido">
-
-```
-<button id="voltar-mural" class="botao-voltar">
-  ← voltar para o mural
-</button>
-
-<div id="pagina-pessoa"></div>
-```
-
-  </section>
-
-  <!-- ======================== IDEIA ======================== -->
-
-  <section id="ideia" class="escondido">
-
-```
-<button id="voltar-mural-ideia" class="botao-voltar">
-  ← voltar para o mural
-</button>
-
-<div id="pagina-ideia"></div>
-```
+    <div id="conteudo-ideia"></div>
 
   </section>
 
 </main>
 
+
 <footer>
-  <span>Viveiro — versão 0.1 (MVP)</span>
-  <span id="base" class="base"></span>
+
+  <span>
+    Viveiro — versão 0.1 (MVP)
+  </span>
+
+  <span
+    id="base"
+    class="base"
+  ></span>
+
 </footer>
 
-<script src="dados/dados_K.js"></script>
 
+<!-- IMPORTANTE:
+     Primeiro carrega os dados.
+     Depois carrega o app.
+-->
+
+<script src="dados/dados_K.js"></script>
 <script src="src/app.js"></script>
 
 </body>
