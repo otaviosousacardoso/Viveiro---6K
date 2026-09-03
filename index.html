@@ -1,110 +1,97 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <title>Viveiro — berçário de ideias</title>
-
   <link rel="stylesheet" href="src/estilo.css">
 </head>
 
 <body>
 
 <header>
-
   <div class="marca">
     <h1>Viveiro</h1>
-
-    <span class="lema">
-      onde as ideias crescem antes de virar projeto
-    </span>
+    <span class="lema">onde as ideias crescem antes de virar projeto</span>
   </div>
 
   <div class="sessao">
     <label for="quem">navegando como</label>
     <select id="quem"></select>
   </div>
-
 </header>
 
-
 <nav class="abas">
-
-  <button id="aba-mural" class="aba ativa">
-    Mural
-  </button>
-
-  <button id="aba-grupos" class="aba">
-    Grupos
-  </button>
-
+  <button id="aba-mural" class="aba ativa">Mural</button>
+  <button id="aba-grupos" class="aba">Grupos</button>
+  <button id="aba-publicar" class="aba">Publicar ideia</button>
 </nav>
-
 
 <main>
 
-  <!-- MURAL -->
-
   <section id="mural">
-
     <div class="barra">
-
       <input
         id="busca"
         type="search"
         placeholder="buscar por título ou resumo..."
       >
-
-      <span
-        id="contagem"
-        class="contagem"
-      ></span>
-
+      <span id="contagem" class="contagem"></span>
     </div>
 
-    <p
-      id="filtro-ativo"
-      class="filtro-ativo"
-    ></p>
+    <p id="filtro-ativo" class="filtro-ativo"></p>
 
-    <div
-      id="cartoes"
-      class="cartoes"
-    ></div>
-
+    <div id="cartoes" class="cartoes"></div>
   </section>
 
-
-  <!-- GRUPOS -->
-
-  <section
-    id="grupos"
-    class="escondido"
-  >
-
+  <section id="grupos" class="escondido">
     <h2>Grupos</h2>
+    <ul id="lista-grupos" class="lista-grupos"></ul>
+  </section>
 
-    <ul
-      id="lista-grupos"
-      class="lista-grupos"
-    ></ul>
+  <section id="publicar" class="escondido">
+
+    <h2>Publicar uma ideia</h2>
+
+    <form id="form-publicar">
+
+      <label for="titulo-ideia">Título</label>
+
+      <input
+        id="titulo-ideia"
+        type="text"
+        placeholder="Digite o título da ideia"
+      >
+
+      <label for="resumo-ideia">Resumo</label>
+
+      <textarea
+        id="resumo-ideia"
+        rows="5"
+        placeholder="Explique sua ideia"
+      ></textarea>
+
+      <label for="tags-ideia">Tags</label>
+
+      <input
+        id="tags-ideia"
+        type="text"
+        placeholder="Ex.: tecnologia, educação, esporte"
+      >
+
+      <p id="erro-publicar" class="filtro-ativo"></p>
+
+      <button type="submit" class="botao-publicar">
+        Publicar ideia
+      </button>
+
+    </form>
 
   </section>
 
+  <section id="pagina-pessoa" class="escondido">
 
-  <!-- PÁGINA DA PESSOA -->
-
-  <section
-    id="pagina-pessoa"
-    class="escondido"
-  >
-
-    <button
-      id="voltar-pessoa"
-      class="voltar"
-    >
+    <button id="voltar-pessoa" class="voltar">
       ← voltar para o mural
     </button>
 
@@ -112,18 +99,9 @@
 
   </section>
 
+  <section id="pagina-ideia" class="escondido">
 
-  <!-- PÁGINA DA IDEIA -->
-
-  <section
-    id="pagina-ideia"
-    class="escondido"
-  >
-
-    <button
-      id="voltar-ideia"
-      class="voltar"
-    >
+    <button id="voltar-ideia" class="voltar">
       ← voltar para o mural
     </button>
 
@@ -133,24 +111,13 @@
 
 </main>
 
-
 <footer>
-
-  <span>
-    Viveiro — versão 0.1 (MVP)
-  </span>
-
-  <span
-    id="base"
-    class="base"
-  ></span>
-
+  <span>Viveiro — versão 0.1 (MVP)</span>
+  <span id="base" class="base"></span>
 </footer>
-
 
 <script src="dados/dados_K.js"></script>
 <script src="src/app.js"></script>
 
 </body>
-
 </html>
